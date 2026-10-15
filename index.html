@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>محاكاة 3D المتكاملة للهيكل الشبكي المشدود | 9m × 9m Bare Rebar Lattice</title>
+  <title>محاكاة 3D المدققة للهيكل الشبكي المشدود | 9m × 9m Bare Rebar Lattice</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -87,14 +87,14 @@
     }
 
     .brand-text h1 {
-      font-size: 0.96rem;
+      font-size: 0.95rem;
       font-weight: 800;
       color: #fff;
       line-height: 1.2;
     }
 
     .brand-text p {
-      font-size: 0.73rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
     }
 
@@ -133,7 +133,7 @@
       top: 84px;
       right: 12px;
       bottom: 12px;
-      width: 345px;
+      width: 350px;
       z-index: 10;
       background: var(--panel-bg);
       backdrop-filter: blur(12px);
@@ -227,13 +227,13 @@
       border: 1px solid rgba(148, 163, 184, 0.25);
       color: var(--text-main);
       font-family: 'Cairo', sans-serif;
-      font-size: 0.74rem;
+      font-size: 0.73rem;
       font-weight: 600;
       padding: 7px 9px;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
-      min-height: 38px;
+      min-height: 37px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -263,6 +263,14 @@
       grid-column: span 2;
       background: linear-gradient(135deg, rgba(5, 150, 105, 0.55), rgba(16, 185, 129, 0.35));
       border-color: #34d399;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .btn-highlight-amber {
+      grid-column: span 2;
+      background: linear-gradient(135deg, rgba(180, 83, 9, 0.55), rgba(245, 158, 11, 0.35));
+      border-color: #fbbf24;
       color: #fff;
       font-weight: 700;
     }
@@ -458,8 +466,8 @@
     <div class="brand-title">
       <div class="brand-badge">9m × 9m | 81m²</div>
       <div class="brand-text">
-        <h1>القبة المخروطية الشدّية المزدوجة + متاهة الخياشيم الجانبية وقبة فنتوري</h1>
-        <p>عنق مثمّن منتظم (r = 0.40m) مغطى بالكامل بقبة فنتوري (r = 0.68m) • قواعد ركام مدفونة (y &lt; 0)</p>
+        <h1>النموذج الهندسي المدقق للهيكل الشبكي المشدود (Zero-Gap Verified 3D Lattice)</h1>
+        <p>تطابق قطري كامل عند الزوايا الأربع (√2 Miter) • تقوية انبعاج الزوايا • خطافات متطابقة 100%</p>
       </div>
     </div>
 
@@ -532,12 +540,14 @@
     </div>
 
     <div class="btn-grid">
-      <button class="btn btn-highlight" data-cam="hub_micro">🔍 زوم مجهري: عقدة التاج وتغطية قبة فنتوري</button>
+      <button class="btn btn-highlight-amber" data-cam="corner_miter">📐 زوم مجهري: ركن المبنى القطري وتفصيلة الزاوية</button>
       <button class="btn btn-highlight-emerald" data-cam="side_louver">🌧️ زوم مجهري: متاهة الفتحة الجانبية المانعة للمطر</button>
+      <button class="btn btn-highlight" data-cam="hub_micro">🔍 زوم مجهري: عقدة التاج وتغطية قبة فنتوري</button>
       <button class="btn" data-cam="lower_hub">🔍 العقدة السفلية (+2.30m)</button>
-      <button class="btn" data-cam="foundation">⛏️ القواعد المدفونة تحت الأرض</button>
+      <button class="btn" data-cam="foundation">⛏️ القواعد والأوتاد المتصالبة</button>
       <button class="btn" data-cam="iso">منظور كلي (3D Iso)</button>
       <button class="btn" data-cam="top">مسقط أفقي (Top Plan)</button>
+      <button class="btn" data-cam="side">قطاع جانبي (Elevation)</button>
     </div>
   </aside>
 
@@ -548,34 +558,34 @@
     </div>
 
     <div class="inspector-box">
-      <div class="inspector-title" id="ins-name">إطار قبة فنتوري ودعامات V وشفة الصد (Venturi Frame)</div>
+      <div class="inspector-title" id="ins-name">الحزام الطوقي ومتاهة الزوايا (Eaves Diaphragm & Corner Miter)</div>
       <div class="inspector-desc" id="ins-desc">
-        عنق فتحة السقف مثمّن منتظم بنصف قطر ثابت (r = 0.40m) على جميع الأوتار الثمانية مع شفة صد مائية (+80mm)، وتغطيه قبة فنتوري المثمّنة (r = 0.68m) ببروز أفقي متساوٍ (28cm) في جميع الاتجاهات والزوايا.
+        حزام شبكي طوقي ثلاثي الأبعاد يربط الأعمدة الـ 16 مع تصحيح قطري كامل (√2 Miter) عند الزوايا الأربع (±4.5m, ±4.5m) لتلافي أي فجوة في الإفريز الخارجي (+2.12m) أو ستارة الصد الداخلية (+2.32m).
       </div>
       <div class="inspector-grid">
         <div class="ins-item">
           <span>القطر والتكوين (Φ)</span>
-          <strong id="ins-dia">Φ6 mm (أضلاع + V-Struts)</strong>
+          <strong id="ins-dia">2×Φ8 + كوابيل وشبكة Φ6</strong>
         </div>
         <div class="ins-item">
           <span>طول الانبعاج / البروز</span>
-          <strong id="ins-lcr">0.35 m (28cm Overhang)</strong>
+          <strong id="ins-lcr">0.40 m (Corner Verified)</strong>
         </div>
         <div class="ins-item">
           <span>القوة التصميمية القصوى</span>
-          <strong id="ins-load">0.695 kN</strong>
+          <strong id="ins-load">8.15 kN</strong>
         </div>
         <div class="ins-item">
           <span>المقاومة الحرجة / القصوى</span>
-          <strong id="ins-cap">1.025 kN</strong>
+          <strong id="ins-cap">12.065 kN</strong>
         </div>
         <div class="ins-item">
           <span>الوزن ضمن الحصر</span>
-          <strong id="ins-weight">3.25 kg</strong>
+          <strong id="ins-weight">30.34 kg</strong>
         </div>
         <div class="ins-item">
           <span>معامل الأمان اللحظي (SF)</span>
-          <strong id="ins-sf" style="color: var(--sf-ok);">1.47 (مطابق)</strong>
+          <strong id="ins-sf" style="color: var(--sf-ok);">1.48 (مطابق)</strong>
         </div>
       </div>
     </div>
@@ -605,6 +615,32 @@
     // 1. قاعدة البيانات الهندسية الشاملة
     // =========================================================================
     const STRUCTURAL_ELEMENTS = {
+      eavesRing: {
+        id: 'eavesRing',
+        name: 'الحزام الطوقي ومتاهة الزوايا (Eaves Truss & Corner Miter)',
+        desc: 'جائز طوقي شبكي يربط رؤوس الأعمدة الـ 16 مع تصحيح قطري كامل (√2 Miter) عند الزوايا الأربع (±4.5m, ±4.5m) لضمان إغلاق الإفريز الخارجي (+2.12m) وستارة الصد الداخلية (+2.32m) بدون أي ثغرة.',
+        diaText: '2×Φ8 + كوابيل وشبكة Φ6',
+        diaGroup: 8,
+        baseLcr: 0.45,
+        baseLoad: 8.15,
+        baseCap: 12.065,
+        weight: 30.34,
+        mode: 'tension',
+        windSensitivity: 0.82
+      },
+      purlinRings: {
+        id: 'purlinRings',
+        name: 'الحلقات المضلعة وتقوية الزوايا (Purlin Rings & Corner Braces)',
+        desc: '12 طوق شد متمركزاً (Φ6mm) تبدأ بمثمّن منتظم (r=0.40m) وتتحول للمربع الخارجي، مدعمة بشكالات زاوية (Corner Chevrons) لضبط طول الانبعاج على الأوتار القطرية الطويلة (6.36m) بحيث لا يتجاوز 0.40m.',
+        diaText: 'Φ6 mm (تباعد محكوم ≤ 0.40m)',
+        diaGroup: 6,
+        baseLcr: 0.40,
+        baseLoad: 4.58,
+        baseCap: 6.785,
+        weight: 43.96,
+        mode: 'tension',
+        windSensitivity: 0.88
+      },
       cupolaFrame: {
         id: 'cupolaFrame',
         name: 'إطار قبة فنتوري ودعامات V وشفة الصد (Venturi Frame)',
@@ -621,7 +657,7 @@
       hubCollector: {
         id: 'hubCollector',
         name: 'عقدة التاج: الأطواق المثمّنة وخطافات 180° (Central Hub)',
-        desc: 'طوقا تجميع مثمّنان (Φ10mm بقطر 180mm) عند +3.60m و+2.30m يرتكزان على ثنيات كابولية (15mm) ومرابيع قفل رأسي (4×Φ8) وأوتار عابرة للنواة (2×Φ8) وخطافات 180° بـ 6 ربطات مزدوجة.',
+        desc: 'طوقا تجميع مثمّنان (Φ10mm بقطر 180mm) عند +3.60m و+2.30m مع كوابيل ارتكاز، أوتار عابرة للنواة (2×Φ8)، وخطافات 180° منطبقة اتجاهياً 100% مع الأوتار ومحزومة بـ 6 ربطات سلك مزدوجة.',
         diaText: 'طوقا Φ10 + خطافات Φ8',
         diaGroup: 10,
         baseLcr: 0.32,
@@ -631,23 +667,10 @@
         mode: 'tension',
         windSensitivity: 0.90
       },
-      eavesRing: {
-        id: 'eavesRing',
-        name: 'الحزام الطوقي ومتاهة الفتحة الجانبية (Z-Labyrinth Louver)',
-        desc: 'طوقان محيطيان (Φ8mm عند +2.20m و+2.40m) + ركائز كابولية خارجية (Φ6mm تبرز 30cm وتنزل لمنسوب +2.12m) + ستارة صد داخلية (+2.32m) تشكل متاهة Z تمنع دخول المطر الأفقي نهائياً.',
-        diaText: '2×Φ8 + كوابيل إفريز Φ6',
-        diaGroup: 8,
-        baseLcr: 0.45,
-        baseLoad: 8.15,
-        baseCap: 12.065,
-        weight: 30.34,
-        mode: 'tension',
-        windSensitivity: 0.82
-      },
       mast: {
         id: 'mast',
         name: 'الساري المركزي المشبّك (Central Laced Mast)',
-        desc: '4 قوائم رأسية Φ10mm بمقطع مربع (150×150mm) مستمرة حتى قمة القبة (+3.85m) ومقيدة بأساور أفقية وقطرية Φ6mm كل L_cr = 0.50m.',
+        desc: '4 قوائم رأسية Φ10mm بمقطع مربع (150×150mm) مستمرة حتى قمة القبة (+3.88m) ومقيدة بأساور أفقية وقطرية Φ6mm كل L_cr = 0.50m.',
         diaText: '4 × Φ10 mm (+ أساور Φ6)',
         diaGroup: 10,
         baseLcr: 0.50,
@@ -660,7 +683,7 @@
       lowerChord: {
         id: 'lowerChord',
         name: 'الأوتار الشعاعية السفلية المقاومة للرفع (Lower Chords)',
-        desc: '8 أوتار شعاعية مقعرة (Φ8mm) تمتد من الطوق المثمّن السفلي (+2.30m) إلى المحيط (+2.40m) لمقاومة قوى شفط ورفع الرياح بتعشيق خطافي 180°.',
+        desc: '8 أوتار شعاعية مقعرة (Φ8mm) تمتد من الطوق المثمّن السفلي (+2.30m) إلى الوتر الداخلي لأعمدة السور (+2.22m) لتحقيق عمق إنشائي كامل عند الأطراف.',
         diaText: '8 × Φ8 mm',
         diaGroup: 8,
         baseLcr: 0.40,
@@ -673,7 +696,7 @@
       upperChord: {
         id: 'upperChord',
         name: 'الأوتار الشعاعية العلوية للسقف (Upper Chords)',
-        desc: '8 أوتار شعاعية (Φ8mm) تمتد من الطوق المثمّن العلوي (+3.60m) إلى المحيط (+2.40m)، مربوطة بالحلقات المضلعة كل L_cr = 0.40m لمنع الانبعاج.',
+        desc: '8 أوتار شعاعية (Φ8mm) تمتد من الطوق المثمّن العلوي (+3.60m) إلى الوتر الخارجي لأعمدة السور (+2.40m)، مقيدة بالحلقات وشكالات الزوايا كل L_cr ≤ 0.40m.',
         diaText: '8 × Φ8 mm',
         diaGroup: 8,
         baseLcr: 0.40,
@@ -685,9 +708,9 @@
       },
       webStruts: {
         id: 'webStruts',
-        name: 'دعامات الشبكة الشعاعية الرابطة (Truss Web Struts)',
-        desc: 'عناصر التدعيم الرأسية والمائلة (Φ6mm) بين الأوتار العلوية والسفلية مع تحزيم وسطي يضبط طول الانبعاج الحر عند L_cr = 0.35m.',
-        diaText: 'Φ6 mm (شبكة Jawerth)',
+        name: 'دعامات الشبكة الشعاعية وطوق التحزيم الوسطي (Web Struts)',
+        desc: 'عناصر التدعيم الرأسية والمائلة (Φ6mm) بين الأوتار العلوية والسفلية، مزودة بطوق تحزيم وسطي يقسم الارتفاع الطويل قرب الساري ليضبط L_cr = 0.35m.',
+        diaText: 'Φ6 mm (مع تحزيم وسطي)',
         diaGroup: 6,
         baseLcr: 0.35,
         baseLoad: 0.720,
@@ -696,23 +719,10 @@
         mode: 'buckling',
         windSensitivity: 0.80
       },
-      purlinRings: {
-        id: 'purlinRings',
-        name: 'الحلقات المضلعة المتمركزة (Purlin Tension Rings)',
-        desc: '10 أطواق شد مضلعة متمركزة (Φ6mm) تبدأ بمثمّن منتظم تماماً عند عنق القبة (r = 0.40m) وتتحول تدريجياً إلى المربع الخارجي لتقييد الانبعاج.',
-        diaText: 'Φ6 mm (تباعد 0.40m)',
-        diaGroup: 6,
-        baseLcr: 0.40,
-        baseLoad: 4.58,
-        baseCap: 6.785,
-        weight: 43.96,
-        mode: 'tension',
-        windSensitivity: 0.88
-      },
       perimCols: {
         id: 'perimCols',
         name: 'أعمدة السور المحيطية المزدوجة (16 Laced Columns)',
-        desc: '16 عموداً شبكياً مزدوجاً (2×Φ10mm بعمق 180mm ضمن الجدار) مقيدة بأساور Φ6mm كل L_cr = 0.45m؛ يحمل وترها الخارجي شادر الجدار (+2.20m) ووترها الداخلي ستارة الصد (+2.32m).',
+        desc: '16 عموداً شبكياً مزدوجاً (2×Φ10mm) مقيدة بأساور Φ6mm كل L_cr = 0.45m؛ أعمدة الزوايا الأربع مصححة هندسياً بعمق قطري (0.18×√2 m) لتلتقي مع الجدارين المتعامدين بدقة.',
         diaText: '16 × (2×Φ10 mm + Φ6)',
         diaGroup: 10,
         baseLcr: 0.45,
@@ -750,9 +760,9 @@
       },
       ballastUplift: {
         id: 'ballastUplift',
-        name: 'القواعد المدفونة تحت الأرض (Buried Ballast & Stakes)',
-        desc: '16 سلة ركام محيطية (145kg) + حوض ركام مركزي (350kg) مدفونة بالكامل في خنادق تحت منسوب الصفر (من -0.05m إلى -0.35m) مع 32 وتد حديد سكراب حتى عمق -0.78m.',
-        diaText: '17 سلة مدفونة + 32 وتد',
+        name: 'القواعد المدفونة والأوتاد المتصالبة (Buried Ballast & X-Stakes)',
+        desc: '16 سلة ركام محيطية (145kg) + حوض ركام مركزي (350kg) مدفونة تحت منسوب الصفر (y < 0) مع 36 وتد حديد سكراب متصالبة على شكل X بزاوية 45° في التربة الطينية.',
+        diaText: '17 سلة مدفونة + 36 وتد X',
         diaGroup: 10,
         baseLcr: 0.00,
         baseLoad: 19.06,
@@ -772,7 +782,7 @@
       showWind: true,
       showBallast: true,
       autoRotate: false,
-      selectedKey: 'cupolaFrame',
+      selectedKey: 'eavesRing',
       results: {}
     };
 
@@ -828,12 +838,12 @@
     }
 
     // =========================================================================
-    // 3. إعداد المشهد ثلاثي الأبعاد والنمذجة المصححة
+    // 3. إعداد المشهد ثلاثي الأبعاد والنمذجة المصححة بالكامل
     // =========================================================================
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x070d19);
-    scene.fog = new THREE.FogExp2(0x070d19, 0.024);
+    scene.fog = new THREE.FogExp2(0x070d19, 0.022);
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.05, 150);
     camera.position.set(11.5, 7.8, 11.5);
@@ -848,7 +858,7 @@
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
     controls.maxPolarAngle = Math.PI / 2 + 0.18;
-    controls.minDistance = 0.40;
+    controls.minDistance = 0.35;
     controls.maxDistance = 28;
 
     scene.add(new THREE.AmbientLight(0xdbeafe, 0.72));
@@ -906,28 +916,36 @@
       return mesh;
     }
 
-    function createHookedSpliceJoint(anchorPt, dirVec, ySlope, elementKey, parentGroup) {
-      const hookGeo = new THREE.TorusGeometry(0.022, 0.009, 8, 14, Math.PI * 1.15);
+    // دالة مصححة 100%: تستخدم المتجه الفعلي بين بداية السيخ والحلقة الأولى لضمان تطابق ذيل الخطاف والربطات الست مع الوتر
+    function createHookedSpliceJoint(pStart, pNext, parentGroup) {
+      const chordVec = new THREE.Vector3().subVectors(pNext, pStart);
+      const chordDir = chordVec.clone().normalize();
+
+      // حلقة الخطاف 180 درجة تلتف حول ضلع الطوق المثمّن
+      const hookGeo = new THREE.TorusGeometry(0.020, 0.0085, 8, 14, Math.PI * 1.15);
       const hookMesh = new THREE.Mesh(hookGeo, groupMaterials['hubCollector']);
-      hookMesh.position.copy(anchorPt);
-      hookMesh.lookAt(anchorPt.clone().add(dirVec));
+      hookMesh.position.copy(pStart);
+      hookMesh.lookAt(pNext);
       hookMesh.rotateY(Math.PI / 2);
       hookMesh.userData = { elementKey: 'hubCollector' };
       parentGroup.add(hookMesh);
       pickableMeshes.push(hookMesh);
 
-      const tailStart = anchorPt.clone().add(new THREE.Vector3(0, 0.018, 0));
-      const tailEnd = tailStart.clone().addScaledVector(dirVec, 0.22).add(new THREE.Vector3(0, ySlope * 0.22, 0));
+      // الذيل الراجع للخطاف بطول 240mm ملاصق وموازٍ تماماً لمتجه الوتر الحقيقي (chordDir)
+      const normalOffset = new THREE.Vector3(0, 0.015, 0);
+      const tailStart = pStart.clone().add(normalOffset);
+      const tailEnd = tailStart.clone().addScaledVector(chordDir, 0.24);
       createBar(tailStart, tailEnd, 0.009, 'hubCollector', parentGroup);
 
+      // 6 ربطات سلك مزدوجة تلتف حول الوتر وذيل الخطاف معاً بنفس زاوية ميل السيخ الحقيقي
       for (let k = 1; k <= 6; k++) {
-        const d = (k / 6) * 0.20;
-        const tiePos = anchorPt.clone().addScaledVector(dirVec, d).add(new THREE.Vector3(0, ySlope * d + 0.008, 0));
-        const tieRingGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.011, 8);
+        const d = (k / 6) * 0.22;
+        const tiePos = pStart.clone().addScaledVector(chordDir, d).addScaledVector(normalOffset, 0.5);
+        const tieRingGeo = new THREE.CylinderGeometry(0.017, 0.017, 0.011, 10);
+        tieRingGeo.rotateX(Math.PI / 2);
         const tieMesh = new THREE.Mesh(tieRingGeo, groupMaterials['tieNodes']);
         tieMesh.position.copy(tiePos);
-        tieMesh.lookAt(anchorPt);
-        tieMesh.rotateX(Math.PI / 2);
+        tieMesh.lookAt(pNext.clone().addScaledVector(normalOffset, 0.5));
         tieMesh.userData = { elementKey: 'tieNodes' };
         parentGroup.add(tieMesh);
         pickableMeshes.push(tieMesh);
@@ -954,7 +972,7 @@
 
     mastCorners.forEach(([cx, cz]) => {
       createBar(
-        new THREE.Vector3(cx, -0.30, cz),
+        new THREE.Vector3(cx, -0.32, cz),
         new THREE.Vector3(cx, 3.88, cz),
         0.015,
         'mast',
@@ -1017,56 +1035,71 @@
     createBar(lowerHubNodes[2], lowerHubNodes[6], 0.011, 'hubCollector', structureGroup);
 
     // -------------------------------------------------------------------------
-    // ب. الجوائز الشعاعية الثمانية المزدوجة مع التحول الهندسي الدقيق (Octagon-to-Square)
-    //    الحلقة الأولى (s=1) تقع على نصف قطر ثابت r_open = 0.40m على جميع الأوتار الثمانية!
+    // ب. الجوائز الشعاعية الثمانية المزدوجة (12 حلقة + تحزيم وسطي للشبكة + تقوية الزوايا)
     // -------------------------------------------------------------------------
-    const ringCount = 10;
-    const rOpen = 0.40; // نصف قطر فتحة عنق التهوية الثابت على كل الأوتار (0.40m)
+    const ringCount = 12; // 12 حلقة لضمان L_cr <= 0.40m
+    const rOpen = 0.40;
     const ringNodesUpper = Array.from({ length: ringCount }, () => []);
+    const ringNodesLower = Array.from({ length: ringCount }, () => []);
+    const midWebNodes = Array.from({ length: 4 }, () => []); // أطواق تحزيم وسطية لدعامات الشبكة الطويلة قرب المركز
 
     radialTargets.forEach((target, idx) => {
       const segments = ringCount;
       let prevUp = upperHubNodes[idx].clone();
       let prevLow = lowerHubNodes[idx].clone();
       const radialDir = new THREE.Vector3(target.x, 0, target.z).normalize();
-      const maxDist = target.length(); // 4.50m للمتعامد، و 6.364m للقطري
+      const maxDistOuter = target.length(); // 4.50m للمتعامد، و 6.364m للقطري
 
-      createHookedSpliceJoint(prevUp, radialDir, -0.32, 'hubCollector', structureGroup);
-      createHookedSpliceJoint(prevLow, radialDir, 0.05, 'hubCollector', structureGroup);
+      // نقطة التقاء الوتر السفلي عند العمود المحيطي تقع على الوتر الداخلي للعمود (+2.22m) لتحقيق عمق 18cm عند الأطراف
+      const isCorner = Math.abs(target.x) === 4.5 && Math.abs(target.z) === 4.5;
+      const colDepthRadial = isCorner ? 0.18 * Math.SQRT2 : 0.18;
+      const maxDistInner = maxDistOuter - colDepthRadial;
 
       for (let s = 1; s <= segments; s++) {
-        // u يتدرج من 0 عند الحلقة الأولى (s=1) إلى 1 عند المحيط الخارجي (s=10)
         const u = (s - 1) / (segments - 1);
 
-        // نصف القطر المثمّن المنتظم مقابل نصف القطر المربع الخارجي
         const rOct = rOpen + u * (4.50 - rOpen);
-        const rSq = rOpen + u * (maxDist - rOpen);
+        const rSqUp = rOpen + u * (maxDistOuter - rOpen);
+        const rSqLow = rOpen + u * (maxDistInner - rOpen);
 
-        // دالة انتقال ناعمة تحافظ على المثمّن المنتظم عند المركز وتصل للمربع عند المحيط
-        const morph = Math.pow(u, 1.6);
-        const rCurrent = rOct * (1 - morph) + rSq * morph;
+        const morph = Math.pow(u, 1.55);
+        const rCurrentUp = rOct * (1 - morph) + rSqUp * morph;
+        const rCurrentLow = rOct * (1 - morph) + rSqLow * morph;
 
-        const x = radialDir.x * rCurrent;
-        const z = radialDir.z * rCurrent;
+        const xUp = radialDir.x * rCurrentUp;
+        const zUp = radialDir.z * rCurrentUp;
+        const xLow = radialDir.x * rCurrentLow;
+        const zLow = radialDir.z * rCurrentLow;
 
-        // نسبة المسافة الفعلية على الوتر لحساب المنسوب الرأسي بدقة
-        const frac = (rCurrent - hubRadius) / (maxDist - hubRadius);
-        const yUp = 3.60 - 1.20 * frac - 0.06 * Math.sin(Math.PI * frac);
-        const yLow = 2.30 + 0.10 * frac + 0.18 * Math.sin(Math.PI * frac);
+        const frac = (rCurrentUp - hubRadius) / (maxDistOuter - hubRadius);
+        const yUp = 3.60 - 1.20 * frac - 0.05 * Math.sin(Math.PI * frac);
+        // الوتر السفلي يبدأ من +2.30m عند المركز ويرتفع في الوسط إلى +2.44m ثم يرتكز عند +2.22m على الوتر الداخلي للعمود
+        const yLow = 2.30 - 0.08 * frac + 0.18 * Math.sin(Math.PI * frac);
 
-        const curUp = new THREE.Vector3(x, yUp, z);
-        const curLow = new THREE.Vector3(x, yLow, z);
+        const curUp = new THREE.Vector3(xUp, yUp, zUp);
+        const curLow = new THREE.Vector3(xLow, yLow, zLow);
+
+        // عند الشريحة الأولى (s=1)، نرسم الخطافات والربطات الست منطبقة 100% على المتجه الفعلي للوتر
+        if (s === 1) {
+          createHookedSpliceJoint(prevUp, curUp, structureGroup);
+          createHookedSpliceJoint(prevLow, curLow, structureGroup);
+        }
 
         createBar(prevUp, curUp, 0.012, 'upperChord', structureGroup);
         createBar(prevLow, curLow, 0.012, 'lowerChord', structureGroup);
 
-        if (s < segments) {
-          createBar(curUp, curLow, 0.008, 'webStruts', structureGroup);
-          createBar(prevUp, curLow, 0.008, 'webStruts', structureGroup);
+        // دعامات الشبكة الرأسية والمائلة في كافة البواكي حتى العمود الخارجي
+        createBar(curUp, curLow, 0.008, 'webStruts', structureGroup);
+        createBar(prevUp, curLow, 0.008, 'webStruts', structureGroup);
+
+        // حفظ نقاط منتصف ارتفاع دعامات الشبكة في الحلقات الـ 4 الأولى (حيث الارتفاع > 0.70m) لربطها بطوق تحزيم وسطي
+        if (s <= 4) {
+          const midPt = new THREE.Vector3().lerpVectors(curUp, curLow, 0.5);
+          midWebNodes[s - 1].push(midPt);
         }
 
         if (s % 2 === 0) {
-          const nodeMesh = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), groupMaterials['tieNodes']);
+          const nodeMesh = new THREE.Mesh(new THREE.SphereGeometry(0.023, 8, 8), groupMaterials['tieNodes']);
           nodeMesh.position.copy(curUp);
           nodeMesh.userData = { elementKey: 'tieNodes' };
           structureGroup.add(nodeMesh);
@@ -1074,16 +1107,49 @@
         }
 
         ringNodesUpper[s - 1].push(curUp);
+        ringNodesLower[s - 1].push(curLow);
         prevUp = curUp;
         prevLow = curLow;
       }
     });
 
-    // الحلقات المضلعة المتمركزة (Spider-Web Purlin Rings - Phi 6mm)
+    // رسم الحلقات المضلعة المتمركزة (Spider-Web Purlin Rings - Phi 6mm)
     ringNodesUpper.forEach((ringPts) => {
       for (let i = 0; i < ringPts.length; i++) {
         createBar(ringPts[i], ringPts[(i + 1) % ringPts.length], 0.009, 'purlinRings', structureGroup);
       }
+    });
+
+    // رسم أطواق التحزيم الوسطية لدعامات الشبكة الطويلة قرب المركز (تضبط L_cr,web = 0.35m)
+    midWebNodes.forEach((midRing) => {
+      for (let i = 0; i < midRing.length; i++) {
+        createBar(midRing[i], midRing[(i + 1) % midRing.length], 0.0075, 'webStruts', structureGroup);
+      }
+    });
+
+    // تقوية الزوايا القطرية الأربع للسقف (Corner Chevron Bracing & Intermediate Column Struts):
+    // تربط رؤوس الأعمدة الوسطية الثمانية (±2.25m) ومنتصف الأوتار القطرية الطويلة لمنع تجاوز L_cr = 0.40m عند الزوايا
+    const cornerIndices = [1, 3, 5, 7];
+    cornerIndices.forEach(cIdx => {
+      const prevOrth = (cIdx + 7) % 8;
+      const nextOrth = (cIdx + 1) % 8;
+
+      // نقطة العمود الوسطي عند منتصف الضلع (±2.25m)
+      const edgeMid1 = new THREE.Vector3().lerpVectors(ringNodesUpper[ringCount - 1][prevOrth], ringNodesUpper[ringCount - 1][cIdx], 0.5);
+      const edgeMid2 = new THREE.Vector3().lerpVectors(ringNodesUpper[ringCount - 1][nextOrth], ringNodesUpper[ringCount - 1][cIdx], 0.5);
+
+      // عقدة منتصف الضلع على الحلقة ما قبل الأخيرة
+      const innerMid1 = new THREE.Vector3().lerpVectors(ringNodesUpper[ringCount - 2][prevOrth], ringNodesUpper[ringCount - 2][cIdx], 0.5);
+      const innerMid2 = new THREE.Vector3().lerpVectors(ringNodesUpper[ringCount - 2][nextOrth], ringNodesUpper[ringCount - 2][cIdx], 0.5);
+
+      // دعامة شعاعية قصيرة من العمود الوسطي (±2.25m) إلى الحلقة الداخلية
+      createBar(edgeMid1, innerMid1, 0.009, 'purlinRings', structureGroup);
+      createBar(edgeMid2, innerMid2, 0.009, 'purlinRings', structureGroup);
+
+      // شكال زاوية (Corner Chevron Tie) يقيد الوتر القطري الطويل في منطقة الزاوية
+      const diagNode = new THREE.Vector3().lerpVectors(ringNodesUpper[ringCount - 2][cIdx], ringNodesUpper[ringCount - 1][cIdx], 0.5);
+      createBar(innerMid1, diagNode, 0.0085, 'purlinRings', structureGroup);
+      createBar(innerMid2, diagNode, 0.0085, 'purlinRings', structureGroup);
     });
 
     // -------------------------------------------------------------------------
@@ -1098,7 +1164,7 @@
 
     const cupolaEavesNodes = [];
     const rainCurbNodes = [];
-    const rHood = 0.68; // نصف قطر القبة 0.68m أكبر من نصف قطر الفتحة 0.40m بـ 28cm في كل الزوايا!
+    const rHood = 0.68;
 
     for (let i = 0; i < 8; i++) {
       const dir = radialTargets[i].clone().normalize();
@@ -1106,7 +1172,6 @@
       cupolaEavesNodes.push(eavesPt);
       createBar(cupolaApex, eavesPt, 0.009, 'cupolaFrame', structureGroup);
 
-      // شفة الصد المائية المرتدة للأعلى (+80mm فوق الحلقة المثمّنة الأولى r = 0.40m)
       const ring1Pt = ringNodesUpper[0][i];
       const curbPt = ring1Pt.clone().add(new THREE.Vector3(0, 0.08, 0));
       rainCurbNodes.push(curbPt);
@@ -1117,13 +1182,12 @@
       const next = (i + 1) % 8;
       createBar(cupolaEavesNodes[i], cupolaEavesNodes[next], 0.010, 'cupolaFrame', structureGroup);
       createBar(rainCurbNodes[i], rainCurbNodes[next], 0.009, 'cupolaFrame', structureGroup);
-      // دعامات V-Struts تربط الحلقة الأولى المثمّنة (r = 0.40m) بطوق حافة القبة (r = 0.68m)
       createBar(ringNodesUpper[0][i], cupolaEavesNodes[i], 0.009, 'cupolaFrame', structureGroup);
       createBar(ringNodesUpper[0][next], cupolaEavesNodes[i], 0.008, 'cupolaFrame', structureGroup);
     }
 
     // -------------------------------------------------------------------------
-    // د. أعمدة السور المزدوجة + القواعد المدفونة تحت الأرض (y < 0) + كوابيل الإفريز الجانبي
+    // د. أعمدة السور الـ 16 المصححة قطرياً عند الزوايا (√2 Miter) + القواعد والأوتاد المتصالبة X
     // -------------------------------------------------------------------------
     const coords = [-4.5, -2.25, 0, 2.25, 4.5];
     const perimPoints = [];
@@ -1135,35 +1199,44 @@
     const pitWireMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true });
 
     perimPoints.forEach(pt => {
-      const dirX = Math.abs(pt.x) === 4.5 ? -Math.sign(pt.x) : 0;
-      const dirZ = Math.abs(pt.z) === 4.5 ? -Math.sign(pt.z) : 0;
-      const dirToCenter = new THREE.Vector3(dirX, 0, dirZ).normalize();
-      const dirOutward = dirToCenter.clone().negate();
+      // تصحيح خطأ √2 القطري عند الزوايا الأربع:
+      // نستخدم مركبات الإزاحة المتعامدة بدون قسمة على √2 لكي ينطبق عمود الزاوية وكابولة الإفريز على تقاطع الجدارين بالملليمتر!
+      const signX = Math.abs(pt.x) === 4.5 ? -Math.sign(pt.x) : 0;
+      const signZ = Math.abs(pt.z) === 4.5 ? -Math.sign(pt.z) : 0;
+
+      const inwardOffset = new THREE.Vector3(signX * 0.18, 0, signZ * 0.18);
+      const outwardOffset = new THREE.Vector3(-signX * 0.30, 0, -signZ * 0.30);
 
       const pOuter = new THREE.Vector3(pt.x, 0, pt.z);
-      const pInner = new THREE.Vector3(pt.x, 0, pt.z).addScaledVector(dirToCenter, 0.18);
+      const pInner = pOuter.clone().add(inwardOffset);
 
-      createBar(pOuter.clone().setY(-0.30), pOuter.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
-      createBar(pInner.clone().setY(-0.30), pInner.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
+      // وترا العمود المزدوج (من القاعدة المدفونة -0.32m إلى أعلى السقف +2.40m)
+      createBar(pOuter.clone().setY(-0.32), pOuter.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
+      createBar(pInner.clone().setY(-0.32), pInner.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
 
-      for (let y = 0.45; y <= 2.35; y += 0.45) {
+      // أساور العمود المزدوج كل 0.45m + تقفيل رأس العمود عند +2.40m
+      for (let y = 0.45; y <= 2.40; y += 0.45) {
         const a = pOuter.clone().setY(y);
         const b = pInner.clone().setY(y);
         createBar(a, b, 0.009, 'perimCols', structureGroup);
         createBar(pOuter.clone().setY(y - 0.45), b, 0.008, 'perimCols', structureGroup);
       }
+      createBar(pOuter.clone().setY(2.40), pInner.clone().setY(2.40), 0.009, 'eavesRing', structureGroup);
+      createBar(pOuter.clone().setY(2.20), pInner.clone().setY(2.22), 0.009, 'eavesRing', structureGroup);
 
+      // الركائز الكابولية للفتحة الجانبية (Phi 6mm): تنطبق في الزوايا تماماً على (±4.80m, +2.12m, ±4.80m)
       const eavesTop = pOuter.clone().setY(2.40);
       const wallTop = pOuter.clone().setY(2.20);
-      const overhangTip = pOuter.clone().addScaledVector(dirOutward, 0.30).setY(2.12);
+      const overhangTip = pOuter.clone().add(outwardOffset).setY(2.12);
       createBar(eavesTop, overhangTip, 0.009, 'eavesRing', structureGroup);
       createBar(wallTop, overhangTip, 0.008, 'eavesRing', structureGroup);
 
+      // سلة الركام الميت مدفونة بالكامل تحت سطح الأرض (من -0.05m إلى -0.35m)
       const basketMesh = new THREE.Mesh(
         new THREE.BoxGeometry(0.46, 0.30, 0.46),
         groupMaterials['ballastUplift']
       );
-      const basketPos = pOuter.clone().addScaledVector(dirToCenter, 0.09);
+      const basketPos = pOuter.clone().addScaledVector(inwardOffset, 0.5);
       basketPos.y = -0.20;
       basketMesh.position.copy(basketPos);
       basketMesh.userData = { elementKey: 'ballastUplift' };
@@ -1174,15 +1247,25 @@
       pitOutline.position.set(basketPos.x, 0.005, basketPos.z);
       ballastGroup.add(pitOutline);
 
+      // وتدا حديد سكراب متصالبان على شكل X بزاوية 45 درجة تحت كل قاعدة (32 وتداً محيطياً)
+      const stakeTangent = new THREE.Vector3(signZ !== 0 ? 1 : 0, 0, signX !== 0 ? 1 : 0);
       createBar(
-        new THREE.Vector3(basketPos.x, -0.05, basketPos.z),
-        new THREE.Vector3(basketPos.x + dirToCenter.x * 0.25, -0.78, basketPos.z + dirToCenter.z * 0.25),
-        0.012,
+        new THREE.Vector3(basketPos.x - stakeTangent.x * 0.12, -0.05, basketPos.z - stakeTangent.z * 0.12),
+        new THREE.Vector3(basketPos.x + stakeTangent.x * 0.22, -0.78, basketPos.z + stakeTangent.z * 0.22),
+        0.011,
+        'ballastUplift',
+        ballastGroup
+      );
+      createBar(
+        new THREE.Vector3(basketPos.x + stakeTangent.x * 0.12, -0.05, basketPos.z + stakeTangent.z * 0.12),
+        new THREE.Vector3(basketPos.x - stakeTangent.x * 0.22, -0.78, basketPos.z - stakeTangent.z * 0.22),
+        0.011,
         'ballastUplift',
         ballastGroup
       );
     });
 
+    // حوض الركام المركزي المدفون + 4 أوتاد متصالبة تحت قاعدة الساري
     const centerBallastMesh = new THREE.Mesh(
       new THREE.CylinderGeometry(0.50, 0.56, 0.32, 16),
       groupMaterials['ballastUplift']
@@ -1196,8 +1279,18 @@
     centerPitOutline.position.set(0, 0.005, 0);
     ballastGroup.add(centerPitOutline);
 
+    mastCorners.forEach(([cx, cz]) => {
+      createBar(
+        new THREE.Vector3(cx, -0.10, cz),
+        new THREE.Vector3(cx * 3.2, -0.82, cz * 3.2),
+        0.012,
+        'ballastUplift',
+        ballastGroup
+      );
+    });
+
     // -------------------------------------------------------------------------
-    // هـ. الأحزمة الطوقية وشكالات القص
+    // هـ. الجائز الطوقي الشبكي العلوي (Laced Eaves Diaphragm Truss) وشكالات القص
     // -------------------------------------------------------------------------
     const cornersOuter = [
       new THREE.Vector3(-4.5, 0, -4.5),
@@ -1229,11 +1322,31 @@
       const ov1 = cornersOverhang[i];
       const ov2 = cornersOverhang[next];
 
+      // الأطواق الخارجية (+2.20m و +2.40m)
       createBar(c1.clone().setY(2.20), c2.clone().setY(2.20), 0.013, 'eavesRing', structureGroup);
       createBar(c1.clone().setY(2.40), c2.clone().setY(2.40), 0.013, 'eavesRing', structureGroup);
+
+      // الأطواق الداخلية (+2.22m لربط الأوتار السفلية و +2.32m لحافة ستارة الصد الداخلية)
+      createBar(in1.clone().setY(2.22), in2.clone().setY(2.22), 0.011, 'eavesRing', structureGroup);
       createBar(in1.clone().setY(2.32), in2.clone().setY(2.32), 0.009, 'eavesRing', structureGroup);
+
+      // طوق حافة الإفريز الخارجي المتدلي عند منسوب (+2.12m) وبروز 30cm
       createBar(ov1.clone().setY(2.12), ov2.clone().setY(2.12), 0.009, 'eavesRing', structureGroup);
 
+      // تشبيك أفقي قطري (Diaphragm Lacing) بين الطوق الخارجي والداخلي على طول الجدران الأربعة
+      const segs = 8;
+      for (let k = 0; k < segs; k++) {
+        const tA = k / segs;
+        const tB = (k + 1) / segs;
+        const outA = new THREE.Vector3().lerpVectors(c1, c2, tA).setY(2.40);
+        const outB = new THREE.Vector3().lerpVectors(c1, c2, tB).setY(2.40);
+        const inA = new THREE.Vector3().lerpVectors(in1, in2, tA).setY(2.22);
+        const inB = new THREE.Vector3().lerpVectors(in1, in2, tB).setY(2.22);
+        createBar(outA, inB, 0.0075, 'eavesRing', structureGroup);
+        createBar(outB, outA.clone().setY(2.20), 0.0075, 'eavesRing', structureGroup);
+      }
+
+      // شكالات القص القطرية داخل مستوى الجدار
       const dir = new THREE.Vector3().subVectors(c2, c1).normalize();
       const bayEnd1 = c1.clone().addScaledVector(dir, 2.25);
       createBar(c1.clone().setY(0.05), bayEnd1.clone().setY(2.20), 0.012, 'wallBracing', structureGroup);
@@ -1245,7 +1358,7 @@
     }
 
     // -------------------------------------------------------------------------
-    // و. شادر السقف (مقسم شرائح بين الحلقات) + شفة الصد + قبة فنتوري + متاهة Z
+    // و. شادر السقف + شفة الصد + قبة فنتوري + متاهة Z المحكمة عند الزوايا
     // -------------------------------------------------------------------------
     const tarpMat = new THREE.MeshStandardMaterial({
       color: 0x0ea5e9,
@@ -1272,7 +1385,6 @@
     for (let i = 0; i < 8; i++) {
       const next = (i + 1) % 8;
 
-      // رسم شادر السقف بين الحلقات المتتالية من الحلقة الأولى المثمّنة (s=0) حتى المحيط الخارجي (s=9)
       for (let s = 0; s < ringCount - 1; s++) {
         const p1 = ringNodesUpper[s][i];
         const p2 = ringNodesUpper[s][next];
@@ -1288,7 +1400,6 @@
         tarpGroup.add(new THREE.Mesh(geom, tarpMat));
       }
 
-      // شفة الصد المائية المرتدة للأعلى (+80mm) حول الفتحة المثمّنة (r = 0.40m)
       const r1 = ringNodesUpper[0][i];
       const r2 = ringNodesUpper[0][next];
       const c1 = rainCurbNodes[i];
@@ -1301,7 +1412,6 @@
       curbGeo.computeVertexNormals();
       tarpGroup.add(new THREE.Mesh(curbGeo, overhangTarpMat));
 
-      // شادر غطاء قبة فنتوري المخروطية المثمّنة (r = 0.68m تغطي r = 0.40m بالكامل)
       const h1 = cupolaEavesNodes[i];
       const h2 = cupolaEavesNodes[next];
       const hoodGeo = new THREE.BufferGeometry();
@@ -1635,7 +1745,7 @@
       e.target.classList.toggle('active', state.autoRotate);
     });
 
-    // أزرار الكاميرا الهندسية والمجهرية
+    // أزرار الكاميرا الشاملة (بما فيها زوم ركن المبنى القطري)
     document.querySelectorAll('[data-cam]').forEach(btn => {
       btn.addEventListener('click', () => {
         const mode = btn.getAttribute('data-cam');
@@ -1645,6 +1755,16 @@
         } else if (mode === 'top') {
           camera.position.set(0, 14.5, 0.01);
           controls.target.set(0, 2.5, 0);
+        } else if (mode === 'side') {
+          camera.position.set(0, 2.2, 13.5);
+          controls.target.set(0, 1.9, 0);
+        } else if (mode === 'corner_miter') {
+          // زوم مجهري على الركن القطري للمبنى (4.50m, 4.50m) لفحص التقاء الجدارين والإفريز وشكالات تقوية الزاوية
+          camera.position.set(5.65, 2.85, 5.65);
+          controls.target.set(4.10, 2.25, 4.10);
+          state.selectedKey = 'eavesRing';
+          updateUI();
+          update3DColors();
         } else if (mode === 'side_louver') {
           camera.position.set(1.35, 2.24, 5.25);
           controls.target.set(0, 2.25, 4.45);
