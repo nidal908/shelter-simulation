@@ -3,20 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>محاكاة 3D للهيكل الشبكي المشدود | 9m × 9m Bare Rebar Lattice</title>
-  <!-- خط Cairo العربي و JetBrains Mono للمعادلات والأرقام -->
+  <title>محاكاة 3D للهيكل الشبكي المشدود وعقدة التاج | 9m × 9m Bare Rebar Lattice</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <!-- مكتبة Three.js و OrbitControls عبر CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
   <style>
     :root {
       --bg-dark: #070d19;
-      --panel-bg: rgba(12, 22, 38, 0.88);
-      --panel-border: rgba(56, 189, 248, 0.25);
+      --panel-bg: rgba(12, 22, 38, 0.90);
+      --panel-border: rgba(56, 189, 248, 0.28);
       --accent: #0284c7;
       --accent-light: #38bdf8;
       --text-main: #f1f5f9;
@@ -52,7 +50,6 @@
       z-index: 1;
     }
 
-    /* الشريط العلوي */
     .top-bar {
       position: absolute;
       top: 12px;
@@ -90,14 +87,14 @@
     }
 
     .brand-text h1 {
-      font-size: 1rem;
+      font-size: 0.98rem;
       font-weight: 800;
       color: #fff;
       line-height: 1.2;
     }
 
     .brand-text p {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       color: var(--text-muted);
     }
 
@@ -113,25 +110,24 @@
       border-radius: 8px;
       padding: 4px 12px;
       text-align: center;
-      min-width: 110px;
+      min-width: 108px;
     }
 
     .kpi-label {
-      font-size: 0.68rem;
+      font-size: 0.67rem;
       color: var(--text-muted);
       display: block;
     }
 
     .kpi-val {
       font-family: var(--mono);
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: var(--accent-light);
       direction: ltr;
       display: inline-block;
     }
 
-    /* اللوحة الجانبية اليمنى (عناصر التحكم) */
     .side-panel {
       position: absolute;
       top: 84px;
@@ -146,19 +142,18 @@
       padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 11px;
       overflow-y: auto;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       transition: transform 0.3s ease;
     }
 
-    /* اللوحة الجانبية اليسرى (فحص العناصر ومصفوفة الأمان) */
     .left-panel {
       position: absolute;
       top: 84px;
       left: 12px;
       bottom: 12px;
-      width: 350px;
+      width: 360px;
       z-index: 10;
       background: var(--panel-bg);
       backdrop-filter: blur(12px);
@@ -167,19 +162,19 @@
       padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       overflow-y: auto;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       transition: transform 0.3s ease;
     }
 
     .section-title {
-      font-size: 0.85rem;
+      font-size: 0.83rem;
       font-weight: 700;
       color: var(--accent-light);
       border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-      padding-bottom: 6px;
-      margin-bottom: 4px;
+      padding-bottom: 5px;
+      margin-bottom: 2px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -189,15 +184,15 @@
       background: rgba(15, 23, 42, 0.65);
       border: 1px solid rgba(148, 163, 184, 0.15);
       border-radius: 8px;
-      padding: 10px;
+      padding: 9px 10px;
     }
 
     .slider-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.8rem;
-      margin-bottom: 6px;
+      font-size: 0.78rem;
+      margin-bottom: 5px;
     }
 
     .slider-val {
@@ -208,7 +203,7 @@
       padding: 2px 7px;
       border-radius: 5px;
       direction: ltr;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
     }
 
     input[type="range"] {
@@ -232,13 +227,13 @@
       border: 1px solid rgba(148, 163, 184, 0.25);
       color: var(--text-main);
       font-family: 'Cairo', sans-serif;
-      font-size: 0.76rem;
+      font-size: 0.75rem;
       font-weight: 600;
-      padding: 8px 10px;
+      padding: 7px 9px;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
-      min-height: 40px;
+      min-height: 38px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -256,60 +251,77 @@
       color: #fff;
     }
 
-    /* بطاقة فحص العنصر المحدد */
+    .btn-highlight {
+      grid-column: span 2;
+      background: linear-gradient(135deg, rgba(3, 105, 161, 0.55), rgba(14, 165, 233, 0.35));
+      border-color: var(--accent-light);
+      color: #fff;
+      font-weight: 700;
+    }
+
     .inspector-box {
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.4);
       border-radius: 10px;
-      padding: 12px;
+      padding: 11px;
     }
 
     .inspector-title {
-      font-size: 0.9rem;
+      font-size: 0.86rem;
       font-weight: 800;
       color: #fff;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
+    }
+
+    .inspector-desc {
+      font-size: 0.72rem;
+      color: #bae6fd;
+      background: rgba(2, 132, 199, 0.18);
+      border-right: 3px solid var(--accent-light);
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      line-height: 1.45;
     }
 
     .inspector-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      font-size: 0.75rem;
+      gap: 5px;
+      font-size: 0.74rem;
     }
 
     .ins-item {
-      background: rgba(30, 41, 59, 0.6);
-      padding: 6px 8px;
+      background: rgba(30, 41, 59, 0.65);
+      padding: 5px 8px;
       border-radius: 6px;
     }
 
     .ins-item span {
       display: block;
       color: var(--text-muted);
-      font-size: 0.68rem;
+      font-size: 0.66rem;
     }
 
     .ins-item strong {
       font-family: var(--mono);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: #f8fafc;
       direction: ltr;
       display: inline-block;
     }
 
-    /* جدول مصفوفة معاملات الأمان */
     .sf-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
     .sf-row {
-      background: rgba(15, 23, 42, 0.7);
+      background: rgba(15, 23, 42, 0.72);
       border: 1px solid rgba(148, 163, 184, 0.15);
       border-radius: 8px;
-      padding: 7px 10px;
+      padding: 6px 9px;
       cursor: pointer;
       transition: border-color 0.2s;
     }
@@ -322,23 +334,23 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       font-weight: 600;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .sf-badge {
       font-family: var(--mono);
-      font-size: 0.75rem;
+      font-size: 0.73rem;
       font-weight: 700;
-      padding: 1px 7px;
+      padding: 1px 6px;
       border-radius: 4px;
       direction: ltr;
     }
 
     .sf-bar-track {
       position: relative;
-      height: 6px;
+      height: 5px;
       background: #1e293b;
       border-radius: 3px;
       overflow: hidden;
@@ -350,7 +362,6 @@
       transition: width 0.25s ease, background-color 0.25s ease;
     }
 
-    /* مفتاح الألوان السفلي */
     .legend-bar {
       position: absolute;
       bottom: 12px;
@@ -365,7 +376,7 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       white-space: nowrap;
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
@@ -383,7 +394,6 @@
       display: inline-block;
     }
 
-    /* أزرار الطي للموبايل */
     .mobile-toggles {
       display: none;
       position: absolute;
@@ -433,7 +443,6 @@
 </head>
 <body>
 
-  <!-- حاوية المشهد ثلاثي الأبعاد -->
   <div id="canvas-container"></div>
 
   <!-- الشريط العلوي -->
@@ -441,8 +450,8 @@
     <div class="brand-title">
       <div class="brand-badge">9m × 9m | 81m²</div>
       <div class="brand-text">
-        <h1>القبة المخروطية الشدّية المزدوجة (Bi-Chord Jawerth Rebar Lattice)</h1>
-        <p>صفر خرسانة • صفر لحام • ساري مركزي مشبّك وحيد • أقطار Φ10, Φ8, Φ6 mm</p>
+        <h1>القبة المخروطية الشدّية المزدوجة + تفصيلة التاج المثمّن وقبة فنتوري</h1>
+        <p>صفر خرسانة • صفر لحام • أطواق تجميع مثمّنة وخطافات 180° • أقطار Φ10, Φ8, Φ6 mm</p>
       </div>
     </div>
 
@@ -470,7 +479,7 @@
   <aside class="side-panel" id="right-panel">
     <div class="section-title">
       <span>1. بارامترات التحميل والانبعاج</span>
-      <button class="btn" style="min-height:26px; padding:2px 8px; font-size:0.7rem;" id="btn-reset">إعادة ضبط</button>
+      <button class="btn" style="min-height:24px; padding:2px 8px; font-size:0.68rem;" id="btn-reset">إعادة ضبط</button>
     </div>
 
     <div class="control-group">
@@ -504,62 +513,66 @@
     <div class="btn-grid">
       <button class="btn active" id="mode-sf">تلوين حسب الأمان (SF)</button>
       <button class="btn" id="mode-dia">تلوين حسب القطر (Φ)</button>
-      <button class="btn active" id="toggle-tarp">شادر HDPE + فنتوري</button>
-      <button class="btn active" id="toggle-wind">أسهم تيارات الرياح</button>
+      <button class="btn active" id="toggle-tarp">شادر HDPE + شفة الصد</button>
+      <button class="btn active" id="toggle-wind">تيارات الرياح وفنتوري</button>
       <button class="btn active" id="toggle-ballast">سلال الركام والأوتاد</button>
       <button class="btn" id="toggle-autorotate">دوران تلقائي 360°</button>
     </div>
 
     <div class="section-title">
-      <span>3. زوايا الكاميرا الهندسية</span>
+      <span>3. زوايا الكاميرا والفحص المجهري</span>
     </div>
 
     <div class="btn-grid">
+      <button class="btn btn-highlight" data-cam="hub_micro">🔍 زوم مجهري: عقدة التاج المثمّنة + إطار فنتوري</button>
+      <button class="btn" data-cam="lower_hub">🔍 العقدة السفلية (+2.30m)</button>
       <button class="btn" data-cam="iso">منظور كلي (3D Iso)</button>
       <button class="btn" data-cam="top">مسقط أفقي (Top Plan)</button>
       <button class="btn" data-cam="side">قطاع جانبي (Elevation)</button>
-      <button class="btn" data-cam="hub">تفصيلة التاج وفنتوري</button>
     </div>
   </aside>
 
   <!-- اللوحة اليسرى: فحص العنصر ومصفوفة معاملات الأمان -->
   <aside class="left-panel hidden-mobile" id="left-panel">
     <div class="section-title">
-      <span>فاحص العناصر (انقر على أي سيخ 3D)</span>
+      <span>فاحص العناصر والتفاصيل (انقر على أي جزء 3D)</span>
     </div>
 
     <div class="inspector-box">
-      <div class="inspector-title" id="ins-name">الساري المركزي المشبّك (Central Laced Mast)</div>
+      <div class="inspector-title" id="ins-name">عقدة التاج: الأطواق المثمّنة والخطافات</div>
+      <div class="inspector-desc" id="ins-desc">
+        طوقا تجميع مثمّنان (Φ10mm، قطر 180mm) عند +3.60m و+2.30m مع كوابيل ارتكاز مثنية، أوتار قطرية عابرة للنواة (2×Φ8)، مرابيع قفل رأسي (4×Φ8)، وخطافات 180° محزومة بـ 6 ربطات سلك مزدوجة.
+      </div>
       <div class="inspector-grid">
         <div class="ins-item">
-          <span>القطر المعتمد (Φ)</span>
-          <strong id="ins-dia">4 × Φ10 mm</strong>
+          <span>القطر والتكوين (Φ)</span>
+          <strong id="ins-dia">Φ10 Ring + Φ8 Hooks</strong>
         </div>
         <div class="ins-item">
-          <span>طول الانبعاج (L_cr)</span>
-          <strong id="ins-lcr">0.50 m</strong>
+          <span>طول الانبعاج / التراكب</span>
+          <strong id="ins-lcr">0.32 m (6 Ties)</strong>
         </div>
         <div class="ins-item">
           <span>القوة التصميمية القصوى</span>
-          <strong id="ins-load">10.80 kN</strong>
+          <strong id="ins-load">12.85 kN</strong>
         </div>
         <div class="ins-item">
-          <span>المقاومة الحرجة (P_cr / P_y)</span>
-          <strong id="ins-cap">15.50 kN</strong>
+          <span>المقاومة الحرجة / القصوى</span>
+          <strong id="ins-cap">18.85 kN</strong>
         </div>
         <div class="ins-item">
-          <span>الوزن الإجمالي للعنصر</span>
-          <strong id="ins-weight">9.38 kg</strong>
+          <span>الوزن ضمن الحصر</span>
+          <strong id="ins-weight">4.12 kg</strong>
         </div>
         <div class="ins-item">
           <span>معامل الأمان اللحظي (SF)</span>
-          <strong id="ins-sf" style="color: var(--sf-ok);">1.44 (مطابق)</strong>
+          <strong id="ins-sf" style="color: var(--sf-ok);">1.47 (مطابق)</strong>
         </div>
       </div>
     </div>
 
     <div class="section-title">
-      <span>مصفوفة التدقيق اللحظي (1.25 ≤ SF ≤ 1.75)</span>
+      <span>مصفوفة التدقيق الشاملة (1.25 ≤ SF ≤ 1.75)</span>
     </div>
 
     <div class="sf-list" id="sf-matrix"></div>
@@ -567,8 +580,8 @@
 
   <!-- أزرار التحكم للموبايل -->
   <div class="mobile-toggles">
-    <button class="mob-btn" id="btn-mob-right">⚙️ التحكم والأحمال</button>
-    <button class="mob-btn" id="btn-mob-left">📊 فحص الأمان (SF)</button>
+    <button class="mob-btn" id="btn-mob-right">⚙️ التحكم والكاميرا</button>
+    <button class="mob-btn" id="btn-mob-left">📊 فحص العقد والأمان</button>
   </div>
 
   <!-- شريط الإيضاح السفلي -->
@@ -580,12 +593,39 @@
 
   <script>
     // =========================================================================
-    // 1. قاعدة البيانات الهندسية والفيزيائية للهيكل الفوقي (BOQ & Structural Data)
+    // 1. قاعدة البيانات الهندسية الشاملة (تضم تفاصيل عقدة التاج وقبة فنتوري)
     // =========================================================================
     const STRUCTURAL_ELEMENTS = {
+      hubCollector: {
+        id: 'hubCollector',
+        name: 'عقدة التاج: الأطواق المثمّنة وخطافات 180° (Central Hub)',
+        desc: 'طوقا تجميع مثمّنان (Φ10mm بقطر 180mm) عند +3.60m و+2.30m يرتكزان على ثنيات كابولية (15mm) ومرابيع قفل رأسي (4×Φ8) وأوتار عابرة للنواة (2×Φ8) وخطافات 180° بـ 6 ربطات مزدوجة.',
+        diaText: 'طوقا Φ10 + خطافات Φ8',
+        diaGroup: 10,
+        baseLcr: 0.32,
+        baseLoad: 12.85,
+        baseCap: 18.85,
+        weight: 4.12,
+        mode: 'tension',
+        windSensitivity: 0.90
+      },
+      cupolaFrame: {
+        id: 'cupolaFrame',
+        name: 'إطار قبة فنتوري ودعامات V وشفة الصد (Venturi Frame)',
+        desc: '8 أضلاع مظلية شعاعية (Φ6mm) + طوق حافة القبة (قطر 1.30m) + 8 دعامات مائلة V-Struts (L_cr=0.35m) + طوق شفة الصد المائية المرتدة للأعلى (+80mm عند +3.58m).',
+        diaText: 'Φ6 mm (أضلاع + V-Struts)',
+        diaGroup: 6,
+        baseLcr: 0.35,
+        baseLoad: 0.695,
+        baseCap: 1.025,
+        weight: 3.25,
+        mode: 'buckling',
+        windSensitivity: 0.88
+      },
       mast: {
         id: 'mast',
         name: 'الساري المركزي المشبّك (Central Laced Mast)',
+        desc: '4 قوائم رأسية Φ10mm بمقطع مربع (150×150mm) مستمرة حتى قمة القبة (+3.85m) ومقيدة بأساور أفقية وقطرية Φ6mm كل L_cr = 0.50m.',
         diaText: '4 × Φ10 mm (+ أساور Φ6)',
         diaGroup: 10,
         baseLcr: 0.50,
@@ -598,6 +638,7 @@
       lowerChord: {
         id: 'lowerChord',
         name: 'الأوتار الشعاعية السفلية المقاومة للرفع (Lower Chords)',
+        desc: '8 أوتار شعاعية مقعرة (Φ8mm) تمتد من الطوق المثمّن السفلي (+2.30m) إلى المحيط (+2.40m) لمقاومة قوى شفط ورفع الرياح بتعشيق خطافي 180°.',
         diaText: '8 × Φ8 mm',
         diaGroup: 8,
         baseLcr: 0.40,
@@ -610,6 +651,7 @@
       upperChord: {
         id: 'upperChord',
         name: 'الأوتار الشعاعية العلوية للسقف (Upper Chords)',
+        desc: '8 أوتار شعاعية (Φ8mm) تمتد من الطوق المثمّن العلوي (+3.60m) إلى المحيط (+2.40m)، مربوطة بالحلقات المضلعة كل L_cr = 0.40m لمنع الانبعاج.',
         diaText: '8 × Φ8 mm',
         diaGroup: 8,
         baseLcr: 0.40,
@@ -622,6 +664,7 @@
       webStruts: {
         id: 'webStruts',
         name: 'دعامات الشبكة الشعاعية الرابطة (Truss Web Struts)',
+        desc: 'عناصر التدعيم الرأسية والمائلة (Φ6mm) بين الأوتار العلوية والسفلية مع تحزيم وسطي يضبط طول الانبعاج الحر عند L_cr = 0.35m.',
         diaText: 'Φ6 mm (شبكة Jawerth)',
         diaGroup: 6,
         baseLcr: 0.35,
@@ -634,6 +677,7 @@
       purlinRings: {
         id: 'purlinRings',
         name: 'الحلقات المضلعة المتمركزة (Purlin Tension Rings)',
+        desc: '10 أطواق شد مضلعة متمركزة (Φ6mm) بتباعد شعاعي 0.40m تسند شادر السقف وتقيد الانبعاج الجانبي للأوتار الشعاعية.',
         diaText: 'Φ6 mm (تباعد 0.40m)',
         diaGroup: 6,
         baseLcr: 0.40,
@@ -646,6 +690,7 @@
       perimCols: {
         id: 'perimCols',
         name: 'أعمدة السور المحيطية المزدوجة (16 Laced Columns)',
+        desc: '16 عموداً شبكياً مزدوجاً (2×Φ10mm بعمق 180mm ضمن الجدار) مقيدة بأساور Φ6mm كل L_cr = 0.45m بدون أي ركائز مائلة تعيق الداخل.',
         diaText: '16 × (2×Φ10 mm + Φ6)',
         diaGroup: 10,
         baseLcr: 0.45,
@@ -658,6 +703,7 @@
       eavesRing: {
         id: 'eavesRing',
         name: 'الحزام الشبكي الطوقي العلوي (Eaves Ring Truss)',
+        desc: 'طوقان محيطيان (Φ8mm) عند +2.20m و+2.40m يشكلان جائزاً طوقياً ينقل أحمال الرياح الأفقية إلى شكالات القص الجانبية ويحتضن خياشيم التهوية.',
         diaText: '2 × Φ8 mm + أساور Φ6',
         diaGroup: 8,
         baseLcr: 0.45,
@@ -670,6 +716,7 @@
       wallBracing: {
         id: 'wallBracing',
         name: 'شكالات القص القطرية للجدران (In-Plane X-Bracing)',
+        desc: 'شكالات شد قطرية متصالبة (Φ8mm) داخل مستوى الجدران الخارجية تقاوم قوى القص الأفقية للرياح (10.31 kN).',
         diaText: 'Φ8 mm (مشدودة مسبقاً)',
         diaGroup: 8,
         baseLcr: 1.50,
@@ -681,7 +728,8 @@
       },
       tieNodes: {
         id: 'tieNodes',
-        name: 'عقد الربط المزدوجة ووصلات الخطاف 180° (Tie-Wire Nodes)',
+        name: 'عقد الربط السلكي المزدوج ومانع الانزلاق (Tie-Wire Nodes)',
+        desc: 'ربطات سلك مجلفن مزدوجة (Φ1.2mm) مبرومة بالكماشة ومغلفة بلفائف خراطيم بلاستيكية مشقوقة لمنع تمزق الشادر.',
         diaText: 'سلك مجلفن Φ1.2 mm',
         diaGroup: 6,
         baseLcr: 0.00,
@@ -694,6 +742,7 @@
       ballastUplift: {
         id: 'ballastUplift',
         name: 'تثبيت القواعد ضد الرفع والانقلاب (Ballast & Stakes)',
+        desc: '16 سلة ركام محيطية (145kg لكل عمود) + حوض ركام مركزي (350kg) + 32 وتد حديد سكراب مدفون بزاوية 45° في التربة الطينية.',
         diaText: '17 سلة ركام + 32 وتد سكراب',
         diaGroup: 10,
         baseLcr: 0.00,
@@ -706,44 +755,41 @@
     };
 
     const state = {
-      windSpeed: 25.0,       // m/s
-      lcrScale: 1.00,        // multiplier
-      ballastMass: 2670,     // kg
-      colorMode: 'sf',       // 'sf' or 'dia'
+      windSpeed: 25.0,
+      lcrScale: 1.00,
+      ballastMass: 2670,
+      colorMode: 'sf',
       showTarp: true,
       showWind: true,
       showBallast: true,
       autoRotate: false,
-      selectedKey: 'mast',
+      selectedKey: 'hubCollector',
       results: {}
     };
 
     // =========================================================================
-    // 2. محرك الحساب الإنشائي اللحظي (Real-Time Mechanics Solver)
+    // 2. محرك الحساب الإنشائي اللحظي
     // =========================================================================
     function computeStructuralState() {
       const windRatio = Math.pow(state.windSpeed / 25.0, 2);
       const lcrRatio = state.lcrScale;
-      const ballastRatio = state.ballastMass / 2670.0;
 
-      const qw = 0.5 * 1.225 * Math.pow(state.windSpeed, 2) / 1000; // kN/m^2
+      const qw = 0.5 * 1.225 * Math.pow(state.windSpeed, 2) / 1000;
       document.getElementById('kpi-qw').textContent = qw.toFixed(3) + ' kN/m²';
 
       let allInBounds = true;
 
       Object.keys(STRUCTURAL_ELEMENTS).forEach(key => {
         const el = STRUCTURAL_ELEMENTS[key];
-        // حساب القوة التصميمية تبعاً لسرعة الرياح
         const fixedPortion = 1 - el.windSensitivity;
         const currentLoad = el.baseLoad * (fixedPortion + el.windSensitivity * windRatio);
 
-        // حساب المقاومة الحرجة تبعاً لطول الانبعاج أو وزن الركام
         let currentCap = el.baseCap;
         if (el.mode === 'buckling') {
           currentCap = el.baseCap / Math.pow(lcrRatio, 2);
         } else if (el.mode === 'ballast') {
           const ballastWeightKN = (state.ballastMass * 9.81) / 1000;
-          currentCap = ballastWeightKN + 2.56; // + مقاومة الأوتاد في الطين
+          currentCap = ballastWeightKN + 2.56;
         }
 
         const sf = currentCap / currentLoad;
@@ -773,47 +819,44 @@
     }
 
     // =========================================================================
-    // 3. إعداد المشهد ثلاثي الأبعاد (Three.js Scene & Geometry Builder)
+    // 3. إعداد المشهد ثلاثي الأبعاد والنمذجة الدقيقة للتاج وقبة فنتوري
     // =========================================================================
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x070d19);
-    scene.fog = new THREE.FogExp2(0x070d19, 0.028);
+    scene.fog = new THREE.FogExp2(0x070d19, 0.025);
 
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 150);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.05, 150);
     camera.position.set(11.5, 7.8, 11.5);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 1.8, 0);
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
-    controls.maxPolarAngle = Math.PI / 2 + 0.08;
-    controls.minDistance = 2.5;
+    controls.maxPolarAngle = Math.PI / 2 + 0.12;
+    controls.minDistance = 0.45; // يسمح بزوم مجهري قريب جداً من عقدة التاج
     controls.maxDistance = 28;
 
-    // الإضاءة
-    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.65);
-    scene.add(ambientLight);
-
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.9);
+    scene.add(new THREE.AmbientLight(0xdbeafe, 0.7));
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.95);
     dirLight1.position.set(12, 18, 10);
     scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.4);
+    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.45);
     dirLight2.position.set(-12, 8, -10);
     scene.add(dirLight2);
 
     // أرضية الموقع 9m x 9m
     const groundGroup = new THREE.Group();
-    const slabGeo = new THREE.BoxGeometry(9.6, 0.08, 9.6);
-    const slabMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
-    const slabMesh = new THREE.Mesh(slabGeo, slabMat);
+    const slabMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(9.6, 0.08, 9.6),
+      new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 })
+    );
     slabMesh.position.y = -0.04;
     groundGroup.add(slabMesh);
 
@@ -822,24 +865,22 @@
     groundGroup.add(gridHelper);
     scene.add(groundGroup);
 
-    // قواميس المواد القابلة للتحديث اللوني
     const groupMaterials = {};
     Object.keys(STRUCTURAL_ELEMENTS).forEach(key => {
       groupMaterials[key] = new THREE.MeshStandardMaterial({
         color: 0x10b981,
         metalness: 0.55,
-        roughness: 0.35
+        roughness: 0.32
       });
     });
 
     const pickableMeshes = [];
 
-    // دالة مساعدة لرسم سيخ أسطواني بين نقطتين في الفضاء 3D
     function createBar(p1, p2, radius, elementKey, parentGroup) {
       const vec = new THREE.Vector3().subVectors(p2, p1);
       const len = vec.length();
       if (len < 0.001) return null;
-      const geo = new THREE.CylinderGeometry(radius, radius, len, 8, 1);
+      const geo = new THREE.CylinderGeometry(radius, radius, len, 10, 1);
       geo.translate(0, len / 2, 0);
       geo.rotateX(Math.PI / 2);
       const mesh = new THREE.Mesh(geo, groupMaterials[elementKey]);
@@ -851,6 +892,38 @@
       return mesh;
     }
 
+    // دالة لرسم خطاف 180 درجة + 6 ربطات سلك مزدوجة عند التقاء الوتر بالطوق المثمّن
+    function createHookedSpliceJoint(anchorPt, dirVec, ySlope, elementKey, parentGroup) {
+      // حلقة الخطاف 180 درجة حول ضلع الطوق المثمّن
+      const hookGeo = new THREE.TorusGeometry(0.022, 0.009, 8, 14, Math.PI * 1.15);
+      const hookMesh = new THREE.Mesh(hookGeo, groupMaterials['hubCollector']);
+      hookMesh.position.copy(anchorPt);
+      hookMesh.lookAt(anchorPt.clone().add(dirVec));
+      hookMesh.rotateY(Math.PI / 2);
+      hookMesh.userData = { elementKey: 'hubCollector' };
+      parentGroup.add(hookMesh);
+      pickableMeshes.push(hookMesh);
+
+      // الذيل الراجع للخطاف بطول 250mm موازٍ للوتر
+      const tailStart = anchorPt.clone().add(new THREE.Vector3(0, 0.018, 0));
+      const tailEnd = tailStart.clone().addScaledVector(dirVec, 0.25).add(new THREE.Vector3(0, ySlope * 0.25, 0));
+      createBar(tailStart, tailEnd, 0.009, 'hubCollector', parentGroup);
+
+      // 6 ربطات سلك مزدوجة (Double-Loop Tie Collars) على طول منطقة التراكب 25cm
+      for (let k = 1; k <= 6; k++) {
+        const d = (k / 6) * 0.23;
+        const tiePos = anchorPt.clone().addScaledVector(dirVec, d).add(new THREE.Vector3(0, ySlope * d + 0.008, 0));
+        const tieRingGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.012, 8);
+        const tieMesh = new THREE.Mesh(tieRingGeo, groupMaterials['tieNodes']);
+        tieMesh.position.copy(tiePos);
+        tieMesh.lookAt(anchorPt);
+        tieMesh.rotateX(Math.PI / 2);
+        tieMesh.userData = { elementKey: 'tieNodes' };
+        parentGroup.add(tieMesh);
+        pickableMeshes.push(tieMesh);
+      }
+    }
+
     const structureGroup = new THREE.Group();
     const ballastGroup = new THREE.Group();
     const tarpGroup = new THREE.Group();
@@ -859,122 +932,54 @@
     scene.add(tarpGroup);
 
     // -------------------------------------------------------------------------
-    // أ. بناء الساري المركزي المشبّك (4x Phi 10mm + أساور Phi 6mm)
+    // أ. الساري المركزي المشبّك (4x Phi 10mm مستمر حتى قمة القبة +3.85m)
     // -------------------------------------------------------------------------
-    const mastOffset = 0.075; // 15cm x 15cm
+    const mastOffset = 0.075; // 150mm x 150mm
     const mastCorners = [
       [-mastOffset, -mastOffset],
       [mastOffset, -mastOffset],
       [mastOffset, mastOffset],
       [-mastOffset, mastOffset]
     ];
+
     mastCorners.forEach(([cx, cz]) => {
+      // القوائم الرئيسية حتى +3.85m
       createBar(
         new THREE.Vector3(cx, 0, cz),
-        new THREE.Vector3(cx, 3.65, cz),
-        0.016,
+        new THREE.Vector3(cx, 3.85, cz),
+        0.015,
         'mast',
         structureGroup
       );
+
+      // كوابيل الارتكاز المثنية على البارد (Cold-Bent Offset Shear Seats) تحت الطوق العلوي (+3.58m)
+      const outDir = new THREE.Vector3(cx, 0, cz).normalize();
+      const seatIn = new THREE.Vector3(cx, 3.54, cz);
+      const seatOut = seatIn.clone().addScaledVector(outDir, 0.032).setY(3.59);
+      const seatBack = new THREE.Vector3(cx, 3.62, cz);
+      createBar(seatIn, seatOut, 0.013, 'hubCollector', structureGroup);
+      createBar(seatOut, seatBack, 0.013, 'hubCollector', structureGroup);
+
+      // مرابيع القفل الرأسي ضد الاقتلاع (Inverted U-Strap Anchor Keys - 4x Phi 8mm) عند العقدة السفلية (+2.30m)
+      const strapTop = new THREE.Vector3(cx, 2.33, cz).addScaledVector(outDir, 0.025);
+      const strapBot = new THREE.Vector3(cx, 1.85, cz).addScaledVector(outDir, 0.015);
+      createBar(strapTop, strapBot, 0.011, 'hubCollector', structureGroup);
     });
+
     // أساور الساري المركزي كل 0.45m
     for (let y = 0.25; y <= 3.55; y += 0.45) {
       for (let i = 0; i < 4; i++) {
         const [x1, z1] = mastCorners[i];
         const [x2, z2] = mastCorners[(i + 1) % 4];
-        createBar(new THREE.Vector3(x1, y, z1), new THREE.Vector3(x2, y, z2), 0.009, 'mast', structureGroup);
+        createBar(new THREE.Vector3(x1, y, z1), new THREE.Vector3(x2, y, z2), 0.008, 'mast', structureGroup);
         if (y + 0.45 <= 3.60) {
-          createBar(new THREE.Vector3(x1, y, z1), new THREE.Vector3(x2, y + 0.45, z2), 0.008, 'mast', structureGroup);
+          createBar(new THREE.Vector3(x1, y, z1), new THREE.Vector3(x2, y + 0.45, z2), 0.007, 'mast', structureGroup);
         }
       }
     }
 
     // -------------------------------------------------------------------------
-    // ب. بناء أعمدة السور المحيطية المزدوجة (16 Laced Columns - 2x Phi 10mm)
-    // -------------------------------------------------------------------------
-    const coords = [-4.5, -2.25, 0, 2.25, 4.5];
-    const perimPoints = [];
-    coords.forEach(x => perimPoints.push({ x, z: -4.5 }));
-    coords.slice(1, -1).forEach(z => perimPoints.push({ x: 4.5, z }));
-    coords.slice().reverse().forEach(x => perimPoints.push({ x, z: 4.5 }));
-    coords.slice(1, -1).reverse().forEach(z => perimPoints.push({ x: -4.5, z }));
-
-    perimPoints.forEach(pt => {
-      // اتجاه العمق نحو الداخل (18cm)
-      const dirToCenter = new THREE.Vector3(-pt.x, 0, -pt.z).normalize();
-      const pOuter = new THREE.Vector3(pt.x, 0, pt.z);
-      const pInner = new THREE.Vector3(pt.x, 0, pt.z).addScaledVector(dirToCenter, 0.18);
-
-      createBar(pOuter, pOuter.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
-      createBar(pInner, pInner.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
-
-      // أساور العمود المزدوج كل 0.45m
-      for (let y = 0.45; y <= 2.35; y += 0.45) {
-        const a = pOuter.clone().setY(y);
-        const b = pInner.clone().setY(y);
-        createBar(a, b, 0.009, 'perimCols', structureGroup);
-        const aPrev = pOuter.clone().setY(y - 0.45);
-        createBar(aPrev, b, 0.008, 'perimCols', structureGroup);
-      }
-
-      // سلة الركام الميت عند قاعدة كل عمود + الأوتاد المدفونة
-      const basketGeo = new THREE.BoxGeometry(0.42, 0.28, 0.42);
-      const basketMesh = new THREE.Mesh(basketGeo, groupMaterials['ballastUplift']);
-      const basketPos = pInner.clone().addScaledVector(dirToCenter, 0.12);
-      basketPos.y = 0.14;
-      basketMesh.position.copy(basketPos);
-      basketMesh.userData = { elementKey: 'ballastUplift' };
-      ballastGroup.add(basketMesh);
-      pickableMeshes.push(basketMesh);
-
-      // وتد سكراب مائل 45 درجة
-      createBar(
-        basketPos.clone().setY(0.25),
-        basketPos.clone().add(new THREE.Vector3(0, -0.45, 0)),
-        0.012,
-        'ballastUplift',
-        ballastGroup
-      );
-    });
-
-    // سلة الركام المركزية حول الساري (350 kg)
-    const centerBallastGeo = new THREE.CylinderGeometry(0.48, 0.55, 0.32, 16);
-    const centerBallastMesh = new THREE.Mesh(centerBallastGeo, groupMaterials['ballastUplift']);
-    centerBallastMesh.position.set(0, 0.16, 0);
-    centerBallastMesh.userData = { elementKey: 'ballastUplift' };
-    ballastGroup.add(centerBallastMesh);
-    pickableMeshes.push(centerBallastMesh);
-
-    // -------------------------------------------------------------------------
-    // ج. الحزام الشبكي الطوقي العلوي (Eaves Ring Truss) وشكالات القص القطرية
-    // -------------------------------------------------------------------------
-    const corners = [
-      new THREE.Vector3(-4.5, 0, -4.5),
-      new THREE.Vector3(4.5, 0, -4.5),
-      new THREE.Vector3(4.5, 0, 4.5),
-      new THREE.Vector3(-4.5, 0, 4.5)
-    ];
-
-    for (let i = 0; i < 4; i++) {
-      const c1 = corners[i];
-      const c2 = corners[(i + 1) % 4];
-      // طوق علوي عند +2.40m وطوق سفلي عند +2.20m
-      createBar(c1.clone().setY(2.20), c2.clone().setY(2.20), 0.013, 'eavesRing', structureGroup);
-      createBar(c1.clone().setY(2.40), c2.clone().setY(2.40), 0.013, 'eavesRing', structureGroup);
-
-      // شكالات قص قطرية متصالبة X-Bracing في البواكي الركنية (2.25m عرض × 2.20m ارتفاع)
-      const dir = new THREE.Vector3().subVectors(c2, c1).normalize();
-      const bayEnd1 = c1.clone().addScaledVector(dir, 2.25);
-      createBar(c1.clone().setY(0.05), bayEnd1.clone().setY(2.20), 0.012, 'wallBracing', structureGroup);
-      createBar(c1.clone().setY(2.20), bayEnd1.clone().setY(0.05), 0.012, 'wallBracing', structureGroup);
-
-      const bayStart2 = c2.clone().addScaledVector(dir, -2.25);
-      createBar(bayStart2.clone().setY(0.05), c2.clone().setY(2.20), 0.012, 'wallBracing', structureGroup);
-      createBar(bayStart2.clone().setY(2.20), c2.clone().setY(0.05), 0.012, 'wallBracing', structureGroup);
-    }
-
-    // -------------------------------------------------------------------------
-    // د. الجوائز الشعاعية المزدوجة الـ 8 (Bi-Chord Jawerth Radial Trusses)
+    // ب. طوقا التجميع المثمّنان (Upper & Lower Octagonal Collector Rings - Phi 10mm)
     // -------------------------------------------------------------------------
     const radialTargets = [
       new THREE.Vector3(0, 0, -4.5),
@@ -987,40 +992,66 @@
       new THREE.Vector3(-4.5, 0, -4.5)
     ];
 
+    const hubRadius = 0.125; // يحيط بالساري (150×150mm) من الخارج
+    const upperHubNodes = [];
+    const lowerHubNodes = [];
+
+    radialTargets.forEach(target => {
+      const dir = target.clone().normalize();
+      upperHubNodes.push(new THREE.Vector3(dir.x * hubRadius, 3.60, dir.z * hubRadius));
+      lowerHubNodes.push(new THREE.Vector3(dir.x * hubRadius, 2.30, dir.z * hubRadius));
+    });
+
+    for (let i = 0; i < 8; i++) {
+      const next = (i + 1) % 8;
+      // أضلاع الطوق المثمّن العلوي (+3.60m) والسفلي (+2.30m) بقطر Phi 10mm
+      createBar(upperHubNodes[i], upperHubNodes[next], 0.015, 'hubCollector', structureGroup);
+      createBar(lowerHubNodes[i], lowerHubNodes[next], 0.015, 'hubCollector', structureGroup);
+    }
+
+    // الأوتار القطرية العابرة للنواة (Internal Cross-Core Continuity Ties - 2x Phi 8mm)
+    createBar(upperHubNodes[0], upperHubNodes[4], 0.011, 'hubCollector', structureGroup);
+    createBar(upperHubNodes[2], upperHubNodes[6], 0.011, 'hubCollector', structureGroup);
+    createBar(lowerHubNodes[0], lowerHubNodes[4], 0.011, 'hubCollector', structureGroup);
+    createBar(lowerHubNodes[2], lowerHubNodes[6], 0.011, 'hubCollector', structureGroup);
+
+    // -------------------------------------------------------------------------
+    // ج. الجوائز الشعاعية الثمانية المزدوجة المرتبطة بالطوقين المثمّنين بخطافات 180°
+    // -------------------------------------------------------------------------
     const ringCount = 10;
     const ringNodesUpper = Array.from({ length: ringCount }, () => []);
 
-    radialTargets.forEach((target) => {
+    radialTargets.forEach((target, idx) => {
       const segments = ringCount;
-      let prevUp = new THREE.Vector3(0, 3.60, 0);
-      let prevLow = new THREE.Vector3(0, 2.30, 0);
+      let prevUp = upperHubNodes[idx].clone();
+      let prevLow = lowerHubNodes[idx].clone();
+      const radialDir = new THREE.Vector3(target.x, 0, target.z).normalize();
+
+      // إنشاء تفصيلة الخطاف 180° والـ 6 ربطات عند التقاء الوتر العلوي والسفلي بالطوق المثمّن
+      createHookedSpliceJoint(prevUp, radialDir, -0.26, 'hubCollector', structureGroup);
+      createHookedSpliceJoint(prevLow, radialDir, 0.05, 'hubCollector', structureGroup);
 
       for (let s = 1; s <= segments; s++) {
         const t = s / segments;
-        const x = target.x * t;
-        const z = target.z * t;
+        const x = prevUp.x + (target.x - prevUp.x) * t;
+        const z = prevUp.z + (target.z - prevUp.z) * t;
 
-        // منحنى الوتر العلوي (من +3.60m إلى +2.40m مع تقعر كاتيناري طفيف)
         const yUp = 3.60 - 1.20 * t - 0.08 * Math.sin(Math.PI * t);
-        // منحنى الوتر السفلي المقاوم للرفع (من +2.30m إلى +2.40m مع تقوس للأعلى)
         const yLow = 2.30 + 0.10 * t + 0.18 * Math.sin(Math.PI * t);
 
         const curUp = new THREE.Vector3(x, yUp, z);
         const curLow = new THREE.Vector3(x, yLow, z);
 
-        createBar(prevUp, curUp, 0.013, 'upperChord', structureGroup);
-        createBar(prevLow, curLow, 0.013, 'lowerChord', structureGroup);
+        createBar(prevUp, curUp, 0.012, 'upperChord', structureGroup);
+        createBar(prevLow, curLow, 0.012, 'lowerChord', structureGroup);
 
-        // دعامات الشبكة الرأسية والمائلة (Phi 6mm)
         if (s < segments) {
           createBar(curUp, curLow, 0.008, 'webStruts', structureGroup);
           createBar(prevUp, curLow, 0.008, 'webStruts', structureGroup);
         }
 
-        // عقدة ربط كروية صغيرة لتمثيل التربيط المزدوج
         if (s % 2 === 0) {
-          const nodeGeo = new THREE.SphereGeometry(0.028, 8, 8);
-          const nodeMesh = new THREE.Mesh(nodeGeo, groupMaterials['tieNodes']);
+          const nodeMesh = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), groupMaterials['tieNodes']);
           nodeMesh.position.copy(curUp);
           nodeMesh.userData = { elementKey: 'tieNodes' };
           structureGroup.add(nodeMesh);
@@ -1033,19 +1064,136 @@
       }
     });
 
-    // -------------------------------------------------------------------------
-    // هـ. الحلقات المضلعة المتمركزة (Spider-Web Purlin Rings - Phi 6mm)
-    // -------------------------------------------------------------------------
+    // الحلقات المضلعة المتمركزة (Spider-Web Purlin Rings - Phi 6mm)
     ringNodesUpper.forEach((ringPts) => {
       for (let i = 0; i < ringPts.length; i++) {
-        const pA = ringPts[i];
-        const pB = ringPts[(i + 1) % ringPts.length];
-        createBar(pA, pB, 0.009, 'purlinRings', structureGroup);
+        createBar(ringPts[i], ringPts[(i + 1) % ringPts.length], 0.009, 'purlinRings', structureGroup);
       }
     });
 
     // -------------------------------------------------------------------------
-    // و. شادر البولي إيثيلين (UNICEF HDPE Tarp) وقبة التهوية فنتوري العلوية
+    // د. إطار قبة التهوية فنتوري الدقيق (8 Umbrella Ribs + 8 V-Struts + Rain Curb)
+    // -------------------------------------------------------------------------
+    const cupolaApex = new THREE.Vector3(0, 3.85, 0);
+    // طوق قمة الساري عند +3.85m
+    for (let i = 0; i < 4; i++) {
+      const [x1, z1] = mastCorners[i];
+      const [x2, z2] = mastCorners[(i + 1) % 4];
+      createBar(new THREE.Vector3(x1, 3.85, z1), new THREE.Vector3(x2, 3.85, z2), 0.010, 'cupolaFrame', structureGroup);
+    }
+
+    const cupolaEavesNodes = [];
+    const rainCurbNodes = [];
+    const rHood = 0.68; // نصف قطر قبة فنتوري الخارجي (تغطي فتحة السقف وتبرز 25cm)
+
+    for (let i = 0; i < 8; i++) {
+      const dir = radialTargets[i].clone().normalize();
+      // عقد طوق الحافة الخارجي لقبة فنتوري عند +3.62m
+      const eavesPt = new THREE.Vector3(dir.x * rHood, 3.62, dir.z * rHood);
+      cupolaEavesNodes.push(eavesPt);
+
+      // 8 أضلاع مظلية شعاعية (8 Umbrella Radial Ribs - Phi 6mm)
+      createBar(cupolaApex, eavesPt, 0.009, 'cupolaFrame', structureGroup);
+
+      // عقد شفة الصد المائية المرتدة للأعلى (+80mm فوق الحلقة الأولى للسقف الرئيسي)
+      const ring1Pt = ringNodesUpper[0][i];
+      const curbPt = ring1Pt.clone().add(new THREE.Vector3(0, 0.085, 0));
+      rainCurbNodes.push(curbPt);
+      // قوائم رفع شفة الصد المائية
+      createBar(ring1Pt, curbPt, 0.008, 'cupolaFrame', structureGroup);
+    }
+
+    for (let i = 0; i < 8; i++) {
+      const next = (i + 1) % 8;
+      // طوق حافة القبة الخارجي (Cupola Eaves Ring - Phi 6mm)
+      createBar(cupolaEavesNodes[i], cupolaEavesNodes[next], 0.010, 'cupolaFrame', structureGroup);
+      // طوق شفة الصد المائية (Rain-Curb Ring - Phi 6mm)
+      createBar(rainCurbNodes[i], rainCurbNodes[next], 0.009, 'cupolaFrame', structureGroup);
+
+      // 8 دعامات تثبيت مائلة على شكل V (Stand-Off V-Struts - Phi 6mm, L_cr = 0.35m)
+      createBar(ringNodesUpper[0][i], cupolaEavesNodes[i], 0.009, 'cupolaFrame', structureGroup);
+      createBar(ringNodesUpper[0][next], cupolaEavesNodes[i], 0.008, 'cupolaFrame', structureGroup);
+    }
+
+    // -------------------------------------------------------------------------
+    // هـ. أعمدة السور المحيطية المزدوجة (16 Laced Columns) والحزام الطوقي وشكالات القص
+    // -------------------------------------------------------------------------
+    const coords = [-4.5, -2.25, 0, 2.25, 4.5];
+    const perimPoints = [];
+    coords.forEach(x => perimPoints.push({ x, z: -4.5 }));
+    coords.slice(1, -1).forEach(z => perimPoints.push({ x: 4.5, z }));
+    coords.slice().reverse().forEach(x => perimPoints.push({ x, z: 4.5 }));
+    coords.slice(1, -1).reverse().forEach(z => perimPoints.push({ x: -4.5, z }));
+
+    perimPoints.forEach(pt => {
+      const dirToCenter = new THREE.Vector3(-pt.x, 0, -pt.z).normalize();
+      const pOuter = new THREE.Vector3(pt.x, 0, pt.z);
+      const pInner = new THREE.Vector3(pt.x, 0, pt.z).addScaledVector(dirToCenter, 0.18);
+
+      createBar(pOuter, pOuter.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
+      createBar(pInner, pInner.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
+
+      for (let y = 0.45; y <= 2.35; y += 0.45) {
+        const a = pOuter.clone().setY(y);
+        const b = pInner.clone().setY(y);
+        createBar(a, b, 0.009, 'perimCols', structureGroup);
+        createBar(pOuter.clone().setY(y - 0.45), b, 0.008, 'perimCols', structureGroup);
+      }
+
+      const basketMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.42, 0.28, 0.42),
+        groupMaterials['ballastUplift']
+      );
+      const basketPos = pInner.clone().addScaledVector(dirToCenter, 0.12);
+      basketPos.y = 0.14;
+      basketMesh.position.copy(basketPos);
+      basketMesh.userData = { elementKey: 'ballastUplift' };
+      ballastGroup.add(basketMesh);
+      pickableMeshes.push(basketMesh);
+
+      createBar(
+        basketPos.clone().setY(0.25),
+        basketPos.clone().add(new THREE.Vector3(0, -0.45, 0)),
+        0.012,
+        'ballastUplift',
+        ballastGroup
+      );
+    });
+
+    const centerBallastMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.48, 0.55, 0.32, 16),
+      groupMaterials['ballastUplift']
+    );
+    centerBallastMesh.position.set(0, 0.16, 0);
+    centerBallastMesh.userData = { elementKey: 'ballastUplift' };
+    ballastGroup.add(centerBallastMesh);
+    pickableMeshes.push(centerBallastMesh);
+
+    const corners = [
+      new THREE.Vector3(-4.5, 0, -4.5),
+      new THREE.Vector3(4.5, 0, -4.5),
+      new THREE.Vector3(4.5, 0, 4.5),
+      new THREE.Vector3(-4.5, 0, 4.5)
+    ];
+
+    for (let i = 0; i < 4; i++) {
+      const c1 = corners[i];
+      const c2 = corners[(i + 1) % 4];
+      createBar(c1.clone().setY(2.20), c2.clone().setY(2.20), 0.013, 'eavesRing', structureGroup);
+      createBar(c1.clone().setY(2.40), c2.clone().setY(2.40), 0.013, 'eavesRing', structureGroup);
+
+      const dir = new THREE.Vector3().subVectors(c2, c1).normalize();
+      const bayEnd1 = c1.clone().addScaledVector(dir, 2.25);
+      createBar(c1.clone().setY(0.05), bayEnd1.clone().setY(2.20), 0.012, 'wallBracing', structureGroup);
+      createBar(c1.clone().setY(2.20), bayEnd1.clone().setY(0.05), 0.012, 'wallBracing', structureGroup);
+
+      const bayStart2 = c2.clone().addScaledVector(dir, -2.25);
+      createBar(bayStart2.clone().setY(0.05), c2.clone().setY(2.20), 0.012, 'wallBracing', structureGroup);
+      createBar(bayStart2.clone().setY(2.20), c2.clone().setY(0.05), 0.012, 'wallBracing', structureGroup);
+    }
+
+    // -------------------------------------------------------------------------
+    // و. شادر البولي إيثيلين (UNICEF HDPE Tarp) + شفة الصد المائية + غطاء فنتوري
     // -------------------------------------------------------------------------
     const tarpMat = new THREE.MeshStandardMaterial({
       color: 0x0ea5e9,
@@ -1055,81 +1203,92 @@
       roughness: 0.6
     });
 
-    // كسوة السقف المخروطية الهرمية (مع فتحة تهوية عليا حول المركز)
-    for (let i = 0; i < 8; i++) {
-      const r1 = ringNodesUpper[1][i];
-      const r2 = ringNodesUpper[1][(i + 1) % 8];
-      const e1 = ringNodesUpper[ringCount - 1][i];
-      const e2 = ringNodesUpper[ringCount - 1][(i + 1) % 8];
-
-      const geom = new THREE.BufferGeometry();
-      const vertices = new Float32Array([
-        r1.x, r1.y, r1.z,
-        e1.x, e1.y, e1.z,
-        e2.x, e2.y, e2.z,
-        r1.x, r1.y, r1.z,
-        e2.x, e2.y, e2.z,
-        r2.x, r2.y, r2.z
-      ]);
-      geom.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-      geom.computeVertexNormals();
-      const mesh = new THREE.Mesh(geom, tarpMat);
-      tarpGroup.add(mesh);
-    }
-
-    // قبة فنتوري العلوية (+3.60m إلى +3.88m)
-    const cupolaGeo = new THREE.ConeGeometry(0.95, 0.32, 8, 1, true);
-    const cupolaMat = new THREE.MeshStandardMaterial({
+    const curbTarpMat = new THREE.MeshStandardMaterial({
       color: 0x38bdf8,
       transparent: true,
-      opacity: 0.48,
+      opacity: 0.45,
       side: THREE.DoubleSide
     });
-    const cupolaMesh = new THREE.Mesh(cupolaGeo, cupolaMat);
-    cupolaMesh.position.set(0, 3.82, 0);
-    tarpGroup.add(cupolaMesh);
 
-    // شادر السور المصمت حتى منسوب +2.20m (مع ترك فجوة الخياشيم من +2.20m إلى +2.40m)
+    for (let i = 0; i < 8; i++) {
+      const next = (i + 1) % 8;
+      // شادر السقف الرئيسي يبدأ من الحلقة الأولى (r = 0.45m) حتى المحيط
+      const r1 = ringNodesUpper[0][i];
+      const r2 = ringNodesUpper[0][next];
+      const e1 = ringNodesUpper[ringCount - 1][i];
+      const e2 = ringNodesUpper[ringCount - 1][next];
+
+      const geom = new THREE.BufferGeometry();
+      geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+        r1.x, r1.y, r1.z, e1.x, e1.y, e1.z, e2.x, e2.y, e2.z,
+        r1.x, r1.y, r1.z, e2.x, e2.y, e2.z, r2.x, r2.y, r2.z
+      ]), 3));
+      geom.computeVertexNormals();
+      tarpGroup.add(new THREE.Mesh(geom, tarpMat));
+
+      // شفة الصد المائية المرتدة للأعلى (+80mm) حول عنق التهوية
+      const c1 = rainCurbNodes[i];
+      const c2 = rainCurbNodes[next];
+      const curbGeo = new THREE.BufferGeometry();
+      curbGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+        r1.x, r1.y, r1.z, r2.x, r2.y, r2.z, c2.x, c2.y, c2.z,
+        r1.x, r1.y, r1.z, c2.x, c2.y, c2.z, c1.x, c1.y, c1.z
+      ]), 3));
+      curbGeo.computeVertexNormals();
+      tarpGroup.add(new THREE.Mesh(curbGeo, curbTarpMat));
+
+      // شادر غطاء قبة فنتوري المخروطية المثمّنة فوق الأضلاع الثمانية
+      const h1 = cupolaEavesNodes[i];
+      const h2 = cupolaEavesNodes[next];
+      const hoodGeo = new THREE.BufferGeometry();
+      hoodGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+        cupolaApex.x, cupolaApex.y, cupolaApex.z,
+        h1.x, h1.y, h1.z,
+        h2.x, h2.y, h2.z
+      ]), 3));
+      hoodGeo.computeVertexNormals();
+      tarpGroup.add(new THREE.Mesh(hoodGeo, curbTarpMat));
+    }
+
+    // شادر السور المصمت حتى منسوب +2.20m
     const wallTarpMat = new THREE.MeshStandardMaterial({
       color: 0xe2e8f0,
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.15,
       side: THREE.DoubleSide
     });
     for (let i = 0; i < 4; i++) {
       const c1 = corners[i];
       const c2 = corners[(i + 1) % 4];
       const wGeo = new THREE.BufferGeometry();
-      const wVerts = new Float32Array([
-        c1.x, 0, c1.z,
-        c2.x, 0, c2.z,
-        c2.x, 2.20, c2.z,
-        c1.x, 0, c1.z,
-        c2.x, 2.20, c2.z,
-        c1.x, 2.20, c1.z
-      ]);
-      wGeo.setAttribute('position', new THREE.BufferAttribute(wVerts, 3));
+      wGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+        c1.x, 0, c1.z, c2.x, 0, c2.z, c2.x, 2.20, c2.z,
+        c1.x, 0, c1.z, c2.x, 2.20, c2.z, c1.x, 2.20, c1.z
+      ]), 3));
       wGeo.computeVertexNormals();
       tarpGroup.add(new THREE.Mesh(wGeo, wallTarpMat));
     }
 
     // -------------------------------------------------------------------------
-    // ز. تيارات الرياح المتحركة وتفريغ فنتوري (Animated Wind Streamlines)
+    // ز. تيارات الرياح المتحركة وتفريغ فنتوري عبر متاهة العنق
     // -------------------------------------------------------------------------
     const windGroup = new THREE.Group();
     scene.add(windGroup);
     const windArrows = [];
 
     const arrowMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-    for (let i = 0; i < 26; i++) {
-      const cone = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.28, 6), arrowMat);
-      cone.rotation.z = -Math.PI / 2;
-      const zOffset = (Math.random() - 0.5) * 8.0;
-      const mode = i < 8 ? 'venturi' : 'stream';
+    const venturiArrowMat = new THREE.MeshBasicMaterial({ color: 0x34d399 });
+    for (let i = 0; i < 28; i++) {
+      const mode = i < 10 ? 'venturi' : 'stream';
+      const cone = new THREE.Mesh(
+        new THREE.ConeGeometry(0.065, 0.22, 6),
+        mode === 'venturi' ? venturiArrowMat : arrowMat
+      );
       windArrows.push({
         mesh: cone,
         progress: Math.random(),
-        zOffset,
+        zOffset: (Math.random() - 0.5) * 7.8,
+        angle: (i / 10) * Math.PI * 2,
         mode
       });
       windGroup.add(cone);
@@ -1144,21 +1303,19 @@
         const p = item.progress;
 
         if (item.mode === 'stream') {
-          // مسار الرياح فوق القبة المخروطية (شفط للأعلى)
           const x = -6.5 + p * 13.0;
-          let y = 1.6;
+          let y = 1.65;
           if (Math.abs(x) < 4.8) {
             y = 2.65 + (1 - Math.abs(x) / 4.8) * 1.35;
           }
           item.mesh.position.set(x, y, item.zOffset);
           item.mesh.rotation.set(0, 0, -Math.PI / 2);
         } else {
-          // تفريغ الهواء الداخلي عبر قبة فنتوري العلوية
-          const angle = item.zOffset * 2.0;
-          const r = (1 - p) * 1.8;
-          const x = Math.cos(angle) * r;
-          const z = Math.sin(angle) * r;
-          const y = 1.2 + p * 2.85;
+          // مسار خروج الهواء من الداخل عبر عنق فنتوري فوق شفة الصد (+3.58m) للخارج
+          const r = 0.15 + p * 0.70;
+          const x = Math.cos(item.angle) * r;
+          const z = Math.sin(item.angle) * r;
+          const y = p < 0.65 ? (2.40 + (p / 0.65) * 1.20) : (3.60 + (p - 0.65) * 0.12);
           item.mesh.position.set(x, y, z);
           item.mesh.rotation.set(0, 0, 0);
         }
@@ -1166,18 +1323,18 @@
     }
 
     // =========================================================================
-    // 4. تحديث الألوان والواجهة التفاعلية (UI & Color Synchronization)
+    // 4. تحديث الألوان والواجهة التفاعلية
     // =========================================================================
     function getColorForSF(sf) {
-      if (sf < 1.25) return new THREE.Color(0xef4444); // أحمر: خطر انبعاج أو خضوع
-      if (sf > 1.75) return new THREE.Color(0xf59e0b); // برتقالي: وزن زائد
-      return new THREE.Color(0x10b981);                // أخضر زمردي: ضمن النطاق المثالي
+      if (sf < 1.25) return new THREE.Color(0xef4444);
+      if (sf > 1.75) return new THREE.Color(0xf59e0b);
+      return new THREE.Color(0x10b981);
     }
 
     function getColorForDiameter(diaGroup) {
-      if (diaGroup === 10) return new THREE.Color(0xf43f5e); // Phi 10mm
-      if (diaGroup === 8) return new THREE.Color(0x38bdf8);  // Phi 8mm
-      return new THREE.Color(0xa855f7);                      // Phi 6mm
+      if (diaGroup === 10) return new THREE.Color(0xf43f5e);
+      if (diaGroup === 8) return new THREE.Color(0x38bdf8);
+      return new THREE.Color(0xa855f7);
     }
 
     function update3DColors() {
@@ -1192,9 +1349,8 @@
           mat.color.copy(getColorForDiameter(el.diaGroup));
         }
 
-        // إبراز العنصر المحدد حالياً
         if (state.selectedKey === key) {
-          mat.emissive.setHex(0x1e3a8a);
+          mat.emissive.setHex(0x1e40af);
         } else {
           mat.emissive.setHex(0x000000);
         }
@@ -1202,11 +1358,11 @@
     }
 
     function updateUI() {
-      // تحديث بطاقة الفحص للعنصر المختار
       const selEl = STRUCTURAL_ELEMENTS[state.selectedKey];
       const selRes = state.results[state.selectedKey];
 
       document.getElementById('ins-name').textContent = selEl.name;
+      document.getElementById('ins-desc').textContent = selEl.desc;
       document.getElementById('ins-dia').textContent = selEl.diaText;
       document.getElementById('ins-lcr').textContent = selEl.baseLcr > 0 ? selRes.lcr.toFixed(2) + ' m' : 'N/A';
       document.getElementById('ins-load').textContent = selRes.load.toFixed(2) + ' kN';
@@ -1227,7 +1383,6 @@
       insSf.textContent = `${selRes.sf.toFixed(2)} (${statusLabel})`;
       insSf.style.color = colorVar;
 
-      // تحديث مصفوفة معاملات الأمان
       const matrixContainer = document.getElementById('sf-matrix');
       matrixContainer.innerHTML = '';
 
@@ -1245,7 +1400,7 @@
         row.className = 'sf-row';
         if (state.selectedKey === key) {
           row.style.borderColor = 'var(--accent-light)';
-          row.style.background = 'rgba(2, 132, 199, 0.2)';
+          row.style.background = 'rgba(2, 132, 199, 0.22)';
         }
         row.innerHTML = `
           <div class="sf-row-top">
@@ -1266,7 +1421,7 @@
     }
 
     // =========================================================================
-    // 5. التفاعل بالنقر على المجسم (Raycasting) وربط الأزرار والمنزلقات
+    // 5. التفاعل بالنقر على المجسم (Raycasting) وأزرار الزوم المجهري
     // =========================================================================
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
@@ -1278,7 +1433,7 @@
 
     renderer.domElement.addEventListener('pointerup', (e) => {
       const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
-      if (dist > 6) return; // تجاهل السحب للدوران
+      if (dist > 6) return;
 
       pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
       pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -1295,7 +1450,6 @@
       }
     });
 
-    // المنزلقات
     document.getElementById('slider-wind').addEventListener('input', (e) => {
       state.windSpeed = parseFloat(e.target.value);
       const kmh = Math.round(state.windSpeed * 3.6);
@@ -1315,7 +1469,6 @@
       computeStructuralState();
     });
 
-    // زر إعادة الضبط للقيم التصميمية المثلى
     document.getElementById('btn-reset').addEventListener('click', () => {
       state.windSpeed = 25.0;
       state.lcrScale = 1.00;
@@ -1329,7 +1482,6 @@
       computeStructuralState();
     });
 
-    // أزرار أنماط التلوين والإظهار
     document.getElementById('mode-sf').addEventListener('click', (e) => {
       state.colorMode = 'sf';
       e.target.classList.add('active');
@@ -1347,9 +1499,9 @@
       e.target.classList.add('active');
       document.getElementById('mode-sf').classList.remove('active');
       document.getElementById('legend-bar').innerHTML = `
-        <div class="legend-item"><span class="dot" style="background: #f43f5e;"></span> قطر Φ10 mm (الساري والأعمدة)</div>
-        <div class="legend-item"><span class="dot" style="background: #38bdf8;"></span> قطر Φ8 mm (الأوتار والشكالات)</div>
-        <div class="legend-item"><span class="dot" style="background: #a855f7;"></span> قطر Φ6 mm (الحلقات والشبكة)</div>
+        <div class="legend-item"><span class="dot" style="background: #f43f5e;"></span> قطر Φ10 mm (الساري وأطواق التاج والأعمدة)</div>
+        <div class="legend-item"><span class="dot" style="background: #38bdf8;"></span> قطر Φ8 mm (الأوتار والخطافات والشكالات)</div>
+        <div class="legend-item"><span class="dot" style="background: #a855f7;"></span> قطر Φ6 mm (إطار فنتوري والحلقات والشبكة)</div>
       `;
       update3DColors();
     });
@@ -1379,7 +1531,7 @@
       e.target.classList.toggle('active', state.autoRotate);
     });
 
-    // أزرار الكاميرا الهندسية
+    // أزرار الكاميرا شاملة الزوم المجهري على عقدة التاج وقبة فنتوري
     document.querySelectorAll('[data-cam]').forEach(btn => {
       btn.addEventListener('click', () => {
         const mode = btn.getAttribute('data-cam');
@@ -1392,15 +1544,25 @@
         } else if (mode === 'side') {
           camera.position.set(0, 2.2, 13.5);
           controls.target.set(0, 1.9, 0);
-        } else if (mode === 'hub') {
-          camera.position.set(2.4, 4.3, 2.4);
-          controls.target.set(0, 3.1, 0);
+        } else if (mode === 'hub_micro') {
+          // زوم قريب جداً على الطوق المثمّن العلوي (+3.60m) وإطار فنتوري (+3.85m)
+          camera.position.set(0.85, 3.78, 0.85);
+          controls.target.set(0, 3.62, 0);
+          state.selectedKey = 'hubCollector';
+          updateUI();
+          update3DColors();
+        } else if (mode === 'lower_hub') {
+          // زوم قريب على الطوق المثمّن السفلي (+2.30m) ومرابيع القفل الرأسي
+          camera.position.set(0.75, 2.25, 0.75);
+          controls.target.set(0, 2.30, 0);
+          state.selectedKey = 'hubCollector';
+          updateUI();
+          update3DColors();
         }
         controls.update();
       });
     });
 
-    // أزرار الموبايل
     const rightPanel = document.getElementById('right-panel');
     const leftPanel = document.getElementById('left-panel');
     document.getElementById('btn-mob-right').addEventListener('click', () => {
@@ -1412,14 +1574,12 @@
       rightPanel.classList.add('hidden-mobile');
     });
 
-    // استجابة تغيير حجم الشاشة
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // تشغيل الحساب الابتدائي وحلقة الرسم
     computeStructuralState();
     let lastTime = performance.now();
 
