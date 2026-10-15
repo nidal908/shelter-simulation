@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>محاكاة 3D المبسطة والمدققة للهيكل الشبكي | 9m × 9m Bare Rebar Lattice</title>
+  <title>محاكاة 3D للهيكل الشبكي المشدود | 9m × 9m Bare Rebar Lattice</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -13,15 +13,15 @@
   <style>
     :root {
       --bg-dark: #070d19;
-      --panel-bg: rgba(12, 22, 38, 0.90);
+      --panel-bg: rgba(12, 22, 38, 0.92);
       --panel-border: rgba(56, 189, 248, 0.28);
       --accent: #0284c7;
       --accent-light: #38bdf8;
       --text-main: #f1f5f9;
       --text-muted: #94a3b8;
-      --sf-ok: #10b981;       /* 1.25 <= SF <= 1.75 */
-      --sf-warn: #f59e0b;     /* SF > 1.75 (Over-designed) */
-      --sf-danger: #ef4444;   /* SF < 1.25 (Failure Risk) */
+      --sf-ok: #10b981;
+      --sf-warn: #f59e0b;
+      --sf-danger: #ef4444;
       --mono: 'JetBrains Mono', monospace;
     }
 
@@ -50,29 +50,30 @@
       z-index: 1;
     }
 
+    /* شريط علوي مدمج ونحيف لا يحجب مساحة الرؤية */
     .top-bar {
       position: absolute;
-      top: 12px;
+      top: 10px;
       right: 12px;
       left: 12px;
-      z-index: 10;
+      z-index: 15;
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       background: var(--panel-bg);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(10px);
       border: 1px solid var(--panel-border);
-      border-radius: 12px;
-      padding: 10px 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      padding: 6px 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
     }
 
-    .brand-title {
+    .brand-compact {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
+      min-width: 0;
     }
 
     .brand-badge {
@@ -80,104 +81,157 @@
       color: #fff;
       font-family: var(--mono);
       font-weight: 700;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .brand-title-text {
       font-size: 0.85rem;
-      padding: 6px 10px;
-      border-radius: 8px;
-      letter-spacing: 0.5px;
-    }
-
-    .brand-text h1 {
-      font-size: 0.95rem;
-      font-weight: 800;
+      font-weight: 700;
       color: #fff;
-      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .brand-text p {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-    }
-
-    .kpi-strip {
+    .kpi-inline {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.75rem;
     }
 
-    .kpi-card {
+    .kpi-pill {
       background: rgba(15, 23, 42, 0.85);
       border: 1px solid rgba(148, 163, 184, 0.2);
-      border-radius: 8px;
-      padding: 4px 12px;
-      text-align: center;
-      min-width: 108px;
+      border-radius: 6px;
+      padding: 2px 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
     }
 
-    .kpi-label {
-      font-size: 0.67rem;
+    .kpi-pill span {
       color: var(--text-muted);
-      display: block;
+      font-size: 0.68rem;
     }
 
-    .kpi-val {
+    .kpi-pill strong {
       font-family: var(--mono);
-      font-size: 0.9rem;
-      font-weight: 700;
       color: var(--accent-light);
       direction: ltr;
-      display: inline-block;
+      font-size: 0.78rem;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle-panel-btn {
+      background: rgba(30, 41, 59, 0.95);
+      color: #fff;
+      border: 1px solid var(--accent-light);
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 0.76rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .toggle-panel-btn.active {
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+    }
+
+    /* اللوحات الجانبية (مطوية افتراضياً في جميع الشاشات) */
+    .side-panel, .left-panel {
+      position: absolute;
+      top: 58px;
+      bottom: 48px;
+      width: 330px;
+      max-width: calc(100vw - 24px);
+      z-index: 20;
+      background: var(--panel-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
     }
 
     .side-panel {
-      position: absolute;
-      top: 84px;
       right: 12px;
-      bottom: 12px;
-      width: 350px;
-      z-index: 10;
-      background: var(--panel-bg);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--panel-border);
-      border-radius: 12px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      overflow-y: auto;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      transition: transform 0.3s ease;
     }
 
     .left-panel {
-      position: absolute;
-      top: 84px;
       left: 12px;
-      bottom: 12px;
-      width: 365px;
-      z-index: 10;
-      background: var(--panel-bg);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--panel-border);
-      border-radius: 12px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      overflow-y: auto;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      transition: transform 0.3s ease;
+      width: 345px;
     }
 
-    .section-title {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--accent-light);
-      border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-      padding-bottom: 5px;
-      margin-bottom: 2px;
+    .side-panel.collapsed {
+      transform: translateX(calc(100% + 24px));
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .left-panel.collapsed {
+      transform: translateX(calc(-100% - 24px));
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .panel-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+      padding-bottom: 6px;
+    }
+
+    .panel-header h2 {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--accent-light);
+    }
+
+    .close-btn {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2px;
     }
 
     .control-group {
@@ -191,8 +245,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.77rem;
-      margin-bottom: 5px;
+      font-size: 0.75rem;
+      margin-bottom: 4px;
     }
 
     .slider-val {
@@ -200,10 +254,10 @@
       font-weight: 700;
       color: #fff;
       background: rgba(2, 132, 199, 0.3);
-      padding: 2px 7px;
-      border-radius: 5px;
+      padding: 1px 6px;
+      border-radius: 4px;
       direction: ltr;
-      font-size: 0.75rem;
+      font-size: 0.73rem;
     }
 
     input[type="range"] {
@@ -229,15 +283,15 @@
       font-family: 'Cairo', sans-serif;
       font-size: 0.73rem;
       font-weight: 600;
-      padding: 7px 9px;
+      padding: 6px 8px;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
-      min-height: 37px;
+      min-height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      text-align: center;
     }
 
     .btn:hover {
@@ -251,77 +305,53 @@
       color: #fff;
     }
 
-    .btn-highlight {
-      grid-column: span 2;
-      background: linear-gradient(135deg, rgba(3, 105, 161, 0.55), rgba(14, 165, 233, 0.35));
-      border-color: var(--accent-light);
-      color: #fff;
-      font-weight: 700;
-    }
-
-    .btn-highlight-emerald {
-      grid-column: span 2;
-      background: linear-gradient(135deg, rgba(5, 150, 105, 0.55), rgba(16, 185, 129, 0.35));
-      border-color: #34d399;
-      color: #fff;
-      font-weight: 700;
-    }
-
-    .btn-highlight-amber {
-      grid-column: span 2;
-      background: linear-gradient(135deg, rgba(180, 83, 9, 0.55), rgba(245, 158, 11, 0.35));
-      border-color: #fbbf24;
-      color: #fff;
-      font-weight: 700;
-    }
-
     .inspector-box {
       background: rgba(15, 23, 42, 0.9);
       border: 1px solid rgba(56, 189, 248, 0.4);
       border-radius: 10px;
-      padding: 11px;
+      padding: 10px;
     }
 
     .inspector-title {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 800;
       color: #fff;
       margin-bottom: 4px;
     }
 
     .inspector-desc {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: #bae6fd;
       background: rgba(2, 132, 199, 0.18);
       border-right: 3px solid var(--accent-light);
-      padding: 5px 8px;
+      padding: 4px 7px;
       border-radius: 4px;
-      margin-bottom: 8px;
-      line-height: 1.45;
+      margin-bottom: 7px;
+      line-height: 1.4;
     }
 
     .inspector-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 5px;
-      font-size: 0.74rem;
+      font-size: 0.72rem;
     }
 
     .ins-item {
       background: rgba(30, 41, 59, 0.65);
-      padding: 5px 8px;
+      padding: 4px 7px;
       border-radius: 6px;
     }
 
     .ins-item span {
       display: block;
       color: var(--text-muted);
-      font-size: 0.65rem;
+      font-size: 0.63rem;
     }
 
     .ins-item strong {
       font-family: var(--mono);
-      font-size: 0.79rem;
+      font-size: 0.76rem;
       color: #f8fafc;
       direction: ltr;
       display: inline-block;
@@ -336,8 +366,8 @@
     .sf-row {
       background: rgba(15, 23, 42, 0.72);
       border: 1px solid rgba(148, 163, 184, 0.15);
-      border-radius: 8px;
-      padding: 6px 9px;
+      border-radius: 7px;
+      padding: 5px 8px;
       cursor: pointer;
       transition: border-color 0.2s;
     }
@@ -350,37 +380,38 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.73rem;
+      font-size: 0.71rem;
       font-weight: 600;
       margin-bottom: 3px;
     }
 
     .sf-badge {
       font-family: var(--mono);
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 700;
-      padding: 1px 6px;
+      padding: 1px 5px;
       border-radius: 4px;
       direction: ltr;
     }
 
     .sf-bar-track {
       position: relative;
-      height: 5px;
+      height: 4px;
       background: #1e293b;
-      border-radius: 3px;
+      border-radius: 2px;
       overflow: hidden;
     }
 
     .sf-bar-fill {
       height: 100%;
-      border-radius: 3px;
+      border-radius: 2px;
       transition: width 0.25s ease, background-color 0.25s ease;
     }
 
+    /* شريط الإيضاح السفلي المدمج */
     .legend-bar {
       position: absolute;
-      bottom: 12px;
+      bottom: 8px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 10;
@@ -388,71 +419,42 @@
       backdrop-filter: blur(10px);
       border: 1px solid var(--panel-border);
       border-radius: 999px;
-      padding: 6px 18px;
+      padding: 4px 14px;
       display: flex;
       align-items: center;
-      gap: 16px;
-      font-size: 0.73rem;
+      gap: 12px;
+      font-size: 0.68rem;
       white-space: nowrap;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      max-width: 96vw;
+      overflow-x: auto;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
     }
 
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .dot {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       display: inline-block;
+      flex-shrink: 0;
     }
 
-    .mobile-toggles {
-      display: none;
-      position: absolute;
-      bottom: 56px;
-      right: 12px;
-      left: 12px;
-      z-index: 20;
-      justify-content: space-between;
-      pointer-events: none;
-    }
-
-    .mob-btn {
-      pointer-events: auto;
-      background: var(--accent);
-      color: #fff;
-      border: 1px solid var(--accent-light);
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-family: 'Cairo', sans-serif;
-      font-weight: 700;
-      font-size: 0.8rem;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      cursor: pointer;
-    }
-
-    @media (max-width: 960px) {
-      .side-panel, .left-panel {
-        top: auto;
-        bottom: 105px;
-        max-height: 52vh;
-        width: calc(100% - 24px);
-      }
-      .side-panel.hidden-mobile {
-        transform: translateX(110%);
-      }
-      .left-panel.hidden-mobile {
-        transform: translateX(-110%);
-      }
-      .mobile-toggles {
-        display: flex;
-      }
-      .kpi-strip {
+    @media (max-width: 820px) {
+      .kpi-inline {
         display: none;
+      }
+      .brand-title-text {
+        font-size: 0.78rem;
+      }
+      .side-panel, .left-panel {
+        top: 54px;
+        bottom: 42px;
+        max-height: calc(100vh - 100px);
       }
     }
   </style>
@@ -461,41 +463,44 @@
 
   <div id="canvas-container"></div>
 
-  <!-- الشريط العلوي -->
+  <!-- شريط علوي نحيف ومدمج -->
   <header class="top-bar">
-    <div class="brand-title">
-      <div class="brand-badge">9m × 9m | 81m²</div>
-      <div class="brand-text">
-        <h1>النموذج الهندسي المبسّط والمدقق (Clean Flat-Ladder Ring Beam & Hip Jack Rafters)</h1>
-        <p>حزام سلم أفقي مبسّط عند +2.40m • أوتار فرعية مستقيمة للأعمدة الوسطية • صفر تعقيد في العقد</p>
+    <div class="brand-compact">
+      <span class="brand-badge">9×9m</span>
+      <span class="brand-title-text">هيكل شبكي مشدود | 258 kg</span>
+    </div>
+
+    <div class="kpi-inline">
+      <div class="kpi-pill">
+        <span>الاستهلاك:</span>
+        <strong>3.185 kg/m²</strong>
+      </div>
+      <div class="kpi-pill">
+        <span>ضغط الرياح:</span>
+        <strong id="kpi-qw">0.383 kN/m²</strong>
+      </div>
+      <div class="kpi-pill">
+        <span>الأمان:</span>
+        <strong id="kpi-status" style="color: var(--sf-ok);">1.25 ≤ SF ≤ 1.75 ✓</strong>
       </div>
     </div>
 
-    <div class="kpi-strip">
-      <div class="kpi-card">
-        <span class="kpi-label">وزن حديد الهيكل الفوقي</span>
-        <span class="kpi-val" id="kpi-weight">258.00 kg</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-label">الاستهلاك النوعي</span>
-        <span class="kpi-val">3.185 kg/m²</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-label">ضغط الرياح الديناميكي</span>
-        <span class="kpi-val" id="kpi-qw">0.383 kN/m²</span>
-      </div>
-      <div class="kpi-card">
-        <span class="kpi-label">النطاق الإلزامي للأمان</span>
-        <span class="kpi-val" id="kpi-status" style="color: var(--sf-ok);">1.25 ≤ SF ≤ 1.75 ✓</span>
-      </div>
+    <div class="top-actions">
+      <button class="toggle-panel-btn" id="btn-toggle-right">⚙️ التحكم</button>
+      <button class="toggle-panel-btn" id="btn-toggle-left">📊 الفحص والأمان</button>
     </div>
   </header>
 
-  <!-- اللوحة اليمنى: المدخلات والتحكم بالمشهد -->
-  <aside class="side-panel" id="right-panel">
+  <!-- اللوحة اليمنى: التحكم والأحمال وزوايا الكاميرا (مطوية افتراضياً) -->
+  <aside class="side-panel collapsed" id="right-panel">
+    <div class="panel-header">
+      <h2>⚙️ لوحة التحكم والعرض</h2>
+      <button class="close-btn" id="close-right" title="إغلاق">✕</button>
+    </div>
+
     <div class="section-title">
       <span>1. بارامترات التحميل والانبعاج</span>
-      <button class="btn" style="min-height:24px; padding:2px 8px; font-size:0.68rem;" id="btn-reset">إعادة ضبط</button>
+      <button class="btn" style="min-height:22px; padding:1px 7px; font-size:0.66rem;" id="btn-reset">إعادة ضبط</button>
     </div>
 
     <div class="control-group">
@@ -526,66 +531,66 @@
       <span>2. نمط التلوين والعرض الفراغي</span>
     </div>
 
+    <!-- الإعدادات الافتراضية مطابقة للصورة تماماً -->
     <div class="btn-grid">
-      <button class="btn active" id="mode-sf">تلوين حسب الأمان (SF)</button>
-      <button class="btn" id="mode-dia">تلوين حسب القطر (Φ)</button>
+      <button class="btn" id="mode-sf">تلوين حسب الأمان (SF)</button>
+      <button class="btn active" id="mode-dia">تلوين حسب القطر (Φ)</button>
       <button class="btn active" id="toggle-tarp">شادر السقف + متاهة Z</button>
-      <button class="btn active" id="toggle-wind">حركة الهواء وصد المطر</button>
+      <button class="btn" id="toggle-wind">حركة الهواء وصد المطر</button>
       <button class="btn active" id="toggle-ballast">القواعد المدفونة (y&lt;0)</button>
       <button class="btn" id="toggle-autorotate">دوران تلقائي 360°</button>
     </div>
 
     <div class="section-title">
-      <span>3. زوايا الكاميرا والفحص المجهري للتفاصيل</span>
+      <span>3. زوايا الكاميرا المختصرة</span>
     </div>
 
     <div class="btn-grid">
-      <button class="btn btn-highlight-amber" data-cam="mid_col_fix">📐 زوم مجهري: الحزام المبسّط والعمود الوسطي (موضع الدائرة)</button>
-      <button class="btn btn-highlight-emerald" data-cam="side_louver">🌧️ زوم مجهري: متاهة الفتحة الجانبية المانعة للمطر</button>
-      <button class="btn btn-highlight" data-cam="hub_micro">🔍 زوم مجهري: عقدة التاج وتغطية قبة فنتوري</button>
-      <button class="btn" data-cam="lower_hub">🔍 العقدة السفلية (+2.30m)</button>
-      <button class="btn" data-cam="foundation">⛏️ القواعد والأوتاد المتصالبة</button>
-      <button class="btn" data-cam="iso">منظور كلي (3D Iso)</button>
-      <button class="btn" data-cam="top">مسقط أفقي (Top Plan)</button>
-      <button class="btn" data-cam="side">قطاع جانبي (Elevation)</button>
+      <button class="btn" data-cam="iso">منظور عام 3D</button>
+      <button class="btn" data-cam="top">مسقط أفقي</button>
+      <button class="btn" data-cam="hub_micro">التاج وقبة فنتوري</button>
+      <button class="btn" data-cam="side_louver">الفتحة الجانبية والحزام</button>
+      <button class="btn" data-cam="lower_hub">العقدة السفلية (+2.3m)</button>
+      <button class="btn" data-cam="foundation">القواعد المدفونة</button>
     </div>
   </aside>
 
-  <!-- اللوحة اليسرى: فحص العنصر ومصفوفة معاملات الأمان -->
-  <aside class="left-panel hidden-mobile" id="left-panel">
-    <div class="section-title">
-      <span>فاحص العناصر والتفاصيل (انقر على أي جزء 3D)</span>
+  <!-- اللوحة اليسرى: فاحص العناصر ومصفوفة معاملات الأمان (مطوية افتراضياً) -->
+  <aside class="left-panel collapsed" id="left-panel">
+    <div class="panel-header">
+      <h2>📊 فاحص العناصر ومعاملات الأمان</h2>
+      <button class="close-btn" id="close-left" title="إغلاق">✕</button>
     </div>
 
     <div class="inspector-box">
-      <div class="inspector-title" id="ins-name">الحزام العلوي المبسّط (Simple Flat-Ladder Ring Beam)</div>
+      <div class="inspector-title" id="ins-name">شوكات الإفريز الهرمية 3D وسيخ الحافة (3D V-Tripod Forks)</div>
       <div class="inspector-desc" id="ins-desc">
-        سلم أفقي مستوٍ وبسيط جداً عند منسوب +2.40m (سيخ خارجي Φ8 + سيخ داخلي Φ8 بعرض 18cm يربطهما درجات سلم أفقية Φ6 كل 0.75m) فوق رؤوس الأعمدة مباشرة، مع طوق سفلي عند +2.20m بدون أي مقصات مائلة معقدة.
+        شوكات هرمية ثلاثية الأبعاد (Φ6mm) تمتد من السيخ الداخلي للحزام (+2.40m) وتعبر السيخ الخارجي بزاوية V أفقية ببروز 25cm مع دعامة ضغط سفلية من (+2.20m) وسيخ حافة مستمر (Φ6mm عند +2.12m) يمنع التشوه والالتواء.
       </div>
       <div class="inspector-grid">
         <div class="ins-item">
           <span>القطر والتكوين (Φ)</span>
-          <strong id="ins-dia">سلم أفقي Φ8 + درجات Φ6</strong>
+          <strong id="ins-dia">هرم 3D Φ6 + حافة Φ6</strong>
         </div>
         <div class="ins-item">
           <span>طول الانبعاج / التربيط</span>
-          <strong id="ins-lcr">0.45 m (Simple Ladder)</strong>
+          <strong id="ins-lcr">0.32 m (25cm Proj)</strong>
         </div>
         <div class="ins-item">
           <span>القوة التصميمية القصوى</span>
-          <strong id="ins-load">8.15 kN</strong>
+          <strong id="ins-load">0.84 kN</strong>
         </div>
         <div class="ins-item">
           <span>المقاومة الحرجة / القصوى</span>
-          <strong id="ins-cap">12.065 kN</strong>
+          <strong id="ins-cap">1.226 kN</strong>
         </div>
         <div class="ins-item">
           <span>الوزن ضمن الحصر</span>
-          <strong id="ins-weight">30.34 kg</strong>
+          <strong id="ins-weight">11.20 kg</strong>
         </div>
         <div class="ins-item">
           <span>معامل الأمان اللحظي (SF)</span>
-          <strong id="ins-sf" style="color: var(--sf-ok);">1.48 (مطابق)</strong>
+          <strong id="ins-sf" style="color: var(--sf-ok);">1.46 (مطابق ✓)</strong>
         </div>
       </div>
     </div>
@@ -597,29 +602,36 @@
     <div class="sf-list" id="sf-matrix"></div>
   </aside>
 
-  <!-- أزرار التحكم للموبايل -->
-  <div class="mobile-toggles">
-    <button class="mob-btn" id="btn-mob-right">⚙️ التحكم والكاميرا</button>
-    <button class="mob-btn" id="btn-mob-left">📊 فحص العقد والأمان</button>
-  </div>
-
-  <!-- شريط الإيضاح السفلي -->
+  <!-- شريط الإيضاح السفلي (يبدأ افتراضياً بنمط الأقطار Φ) -->
   <div class="legend-bar" id="legend-bar">
-    <div class="legend-item"><span class="dot" style="background: var(--sf-ok);"></span> آمن ومثالي (1.25 ≤ SF ≤ 1.75)</div>
-    <div class="legend-item"><span class="dot" style="background: var(--sf-warn);"></span> فائض أمان / وزن زائد (SF &gt; 1.75)</div>
-    <div class="legend-item"><span class="dot" style="background: var(--sf-danger);"></span> خطر انبعاج أو خضوع (SF &lt; 1.25)</div>
+    <div class="legend-item"><span class="dot" style="background: #f43f5e;"></span> قطر Φ10 mm (الساري وأطواق التاج والأعمدة)</div>
+    <div class="legend-item"><span class="dot" style="background: #38bdf8;"></span> قطر Φ8 mm (الأوتار وحزام السلم والشكالات)</div>
+    <div class="legend-item"><span class="dot" style="background: #a855f7;"></span> قطر Φ6 mm (شوكات 3D وفنتوري والحلقات)</div>
   </div>
 
   <script>
     // =========================================================================
-    // 1. قاعدة البيانات الهندسية الشاملة (بعد تبسيط الحزام العلوي وعقدة العمود الوسطي)
+    // 1. قاعدة البيانات الهندسية الشاملة (شاملة الشوكات الهرمية 3D والحزام المتعامد)
     // =========================================================================
     const STRUCTURAL_ELEMENTS = {
+      outriggerForks: {
+        id: 'outriggerForks',
+        name: 'شوكات الإفريز الهرمية 3D وسيخ الحافة (3D V-Tripod Forks)',
+        desc: 'شوكات هرمية ثلاثية الأبعاد (Φ6mm كل 1.125m) تبدأ من السيخ الداخلي للحزام (+2.40m) وتعبر السيخ الخارجي بزاوية V أفقية لبروز 25cm مع دعامة ضغط من (+2.20m) وسيخ حافة مستمر (Φ6mm عند +2.12m) يمنع أي التواء جانبي.',
+        diaText: 'هرم 3D Φ6 + حافة Φ6',
+        diaGroup: 6,
+        baseLcr: 0.32,
+        baseLoad: 0.840,
+        baseCap: 1.226,
+        weight: 11.20,
+        mode: 'buckling',
+        windSensitivity: 0.88
+      },
       eavesRing: {
         id: 'eavesRing',
-        name: 'الحزام العلوي المبسّط (Simple Flat-Ladder Ring Beam)',
-        desc: 'سلم أفقي مستوٍ وبسيط عند منسوب +2.40m (سيخ خارجي Φ8 + سيخ داخلي Φ8 بعرض 18cm يربطهما درجات أفقية Φ6 كل 0.75m) فوق رؤوس الأعمدة الـ 16 مباشرة، مع طوق سفلي عند +2.20m وشوكة إفريز كابولية مبسطة عند كل عمود.',
-        diaText: 'سلم أفقي Φ8 + درجات Φ6',
+        name: 'حزام السلم الأفقي المتعامد (90° Flat-Ladder Ring Beam)',
+        desc: 'سلم أفقي مستوٍ عند +2.40m (سيخ خارجي Φ8 + سيخ داخلي Φ8 بعرض 18cm) مربوط بدرجات سلم متعامدة تماماً بزاوية 90° (Φ6mm) فوق رؤوس الأعمدة، مع طوق سفلي عند +2.20m.',
+        diaText: '2×Φ8 + درجات متعامدة Φ6',
         diaGroup: 8,
         baseLcr: 0.45,
         baseLoad: 8.15,
@@ -630,9 +642,9 @@
       },
       purlinRings: {
         id: 'purlinRings',
-        name: 'الحلقات المضلعة والأوتار الفرعية المتعامدة (Purlins & Jack Rafters)',
-        desc: '12 طوق شد متمركزاً (Φ6mm) تبدأ بمثمّن منتظم (r=0.40m)، مسندة عند الزوايا بـ 8 أوتار فرعية مستقيمة متعامدة (Hip Jack Rafters Φ6mm) تمتد من رؤوس الأعمدة الوسطية (±2.25m) مباشرة إلى عقد منتصف الأوتار القطرية (2.25m, 2.25m).',
-        diaText: 'Φ6 mm (تباعد محكوم ≤ 0.40m)',
+        name: 'الحلقات المضلعة والأوتار الفرعية (Purlins & Jack Rafters)',
+        desc: '12 طوق شد متمركزاً (Φ6mm) تبدأ بمثمّن منتظم (r=0.40m)، مسندة عند الزوايا بـ 8 أوتار فرعية مستقيمة متعامدة (Hip Jack Rafters Φ6mm) تمتد من الأعمدة الوسطية (±2.25m) إلى منتصف الأوتار القطرية.',
+        diaText: 'Φ6 mm (تباعد ≤ 0.40m)',
         diaGroup: 6,
         baseLcr: 0.40,
         baseLoad: 4.58,
@@ -644,7 +656,7 @@
       perimCols: {
         id: 'perimCols',
         name: 'أعمدة السور المحيطية المزدوجة (16 Laced Columns)',
-        desc: '16 عموداً شبكياً مزدوجاً (2×Φ10mm بعمق 18cm) تنتهي رؤوسها الخارجية والداخلية معاً في مستوى أفقي واحد (+2.40m) لتثبيت حزام السلم العلوي بسهولة تامة بدون أي بروز أو تعقيد.',
+        desc: '16 عموداً شبكياً مزدوجاً (2×Φ10mm بعمق 18cm) تنتهي رؤوسها الخارجية والداخلية معاً في مستوى أفقي واحد (+2.40m) لتثبيت حزام السلم العلوي وشوكات الإفريز.',
         diaText: '16 × (2×Φ10 mm + Φ6)',
         diaGroup: 10,
         baseLcr: 0.45,
@@ -773,16 +785,17 @@
       }
     };
 
+    // الحالة الافتراضية مطابقة تماماً لاختيارك في الصورة
     const state = {
       windSpeed: 25.0,
       lcrScale: 1.00,
       ballastMass: 2670,
-      colorMode: 'sf',
-      showTarp: true,
-      showWind: true,
-      showBallast: true,
-      autoRotate: false,
-      selectedKey: 'eavesRing',
+      colorMode: 'dia',      // تلوين حسب القطر (Φ) افتراضياً
+      showTarp: true,        // شادر السقف + متاهة Z مفعل افتراضياً
+      showWind: false,       // حركة الهواء متوقفة افتراضياً
+      showBallast: true,     // القواعد المدفونة مفعلة افتراضياً
+      autoRotate: false,     // دوران تلقائي متوقف افتراضياً
+      selectedKey: 'outriggerForks',
       results: {}
     };
 
@@ -838,7 +851,7 @@
     }
 
     // =========================================================================
-    // 3. إعداد المشهد ثلاثي الأبعاد والنمذجة المبسّطة والمدققة
+    // 3. إعداد المشهد ثلاثي الأبعاد والنمذجة الهندسية الدقيقة
     // =========================================================================
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
@@ -1030,7 +1043,7 @@
     createBar(lowerHubNodes[2], lowerHubNodes[6], 0.011, 'hubCollector', structureGroup);
 
     // -------------------------------------------------------------------------
-    // ب. الجوائز الشعاعية الثمانية المزدوجة + الأوتار الفرعية المستقيمة (Hip Jack Rafters)
+    // ب. الجوائز الشعاعية الثمانية المزدوجة + الأوتار الفرعية المستقيمة
     // -------------------------------------------------------------------------
     const ringCount = 12;
     const rOpen = 0.40;
@@ -1067,7 +1080,6 @@
 
         const frac = (rCurrentUp - hubRadius) / (maxDistOuter - hubRadius);
         const yUp = 3.60 - 1.20 * frac - 0.05 * Math.sin(Math.PI * frac);
-        // الوتر السفلي يرتكز بنظافة تامة عند منسوب +2.20m على القائم الداخلي للعمود
         const yLow = 2.30 - 0.10 * frac + 0.18 * Math.sin(Math.PI * frac);
 
         const curUp = new THREE.Vector3(xUp, yUp, zUp);
@@ -1116,25 +1128,16 @@
       }
     });
 
-    // -------------------------------------------------------------------------
-    // الحل الهندسي الصحيح للأعمدة الوسطية الثمانية (±2.25m):
-    // أوتار فرعية مستقيمة متعامدة (Hip Jack Rafters - Phi 6mm) تمتد من رأس العمود الوسطي (+2.40m)
-    // مباشرة إلى عقدة منتصف الوتر القطري (s = 6)، فتسند الحلقات وتمنع انبعاج الوتر القطري بدون أي انكسار!
-    // -------------------------------------------------------------------------
     const cornerIndices = [1, 3, 5, 7];
-    const targetDiagRingIdx = 6; // العقدة الوسطية على الوتر القطري
+    const targetDiagRingIdx = 6;
     cornerIndices.forEach(cIdx => {
       const prevOrth = (cIdx + 7) % 8;
       const nextOrth = (cIdx + 1) % 8;
 
-      // رأس العمود الوسطي الأول والثاني عند (+2.40m)
       const midColTop1 = new THREE.Vector3().lerpVectors(ringNodesUpper[ringCount - 1][prevOrth], ringNodesUpper[ringCount - 1][cIdx], 0.5);
       const midColTop2 = new THREE.Vector3().lerpVectors(ringNodesUpper[ringCount - 1][nextOrth], ringNodesUpper[ringCount - 1][cIdx], 0.5);
-
-      // عقدة الالتقاء المباشرة على الوتر القطري الرئيسي
       const diagHubNode = ringNodesUpper[targetDiagRingIdx][cIdx];
 
-      // وتر فرعي مستقيم 100% من رأس العمود الوسطي إلى عقدة الوتر القطري
       createBar(midColTop1, diagHubNode, 0.0095, 'purlinRings', structureGroup);
       createBar(midColTop2, diagHubNode, 0.0095, 'purlinRings', structureGroup);
     });
@@ -1174,7 +1177,7 @@
     }
 
     // -------------------------------------------------------------------------
-    // د. أعمدة السور الـ 16 المصححة + القواعد المدفونة + الشوكة الكابولية المبسّطة
+    // د. أعمدة السور الـ 16 + القواعد المدفونة (y < 0)
     // -------------------------------------------------------------------------
     const coords = [-4.5, -2.25, 0, 2.25, 4.5];
     const perimPoints = [];
@@ -1190,16 +1193,12 @@
       const signZ = Math.abs(pt.z) === 4.5 ? -Math.sign(pt.z) : 0;
 
       const inwardOffset = new THREE.Vector3(signX * 0.18, 0, signZ * 0.18);
-      const outwardOffset = new THREE.Vector3(-signX * 0.30, 0, -signZ * 0.30);
-
       const pOuter = new THREE.Vector3(pt.x, 0, pt.z);
       const pInner = pOuter.clone().add(inwardOffset);
 
-      // وترا العمود المزدوج ينتهيان معاً في نفس المستوى الأفقي (+2.40m) بدون أي بروز معلق!
       createBar(pOuter.clone().setY(-0.32), pOuter.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
       createBar(pInner.clone().setY(-0.32), pInner.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
 
-      // أساور العمود المزدوج كل 0.45m حتى +2.20m ثم قفل رأس العمود الأفقي عند +2.40m
       const rungLevels = [0.45, 0.90, 1.35, 1.80, 2.20, 2.40];
       for (let k = 0; k < rungLevels.length; k++) {
         const y = rungLevels[k];
@@ -1212,14 +1211,6 @@
         }
       }
 
-      // شوكة كابولية مبسّطة (Phi 6mm) عند كل عمود فقط لحمل إفريز المطر (+2.12m)
-      const eavesTop = pOuter.clone().setY(2.40);
-      const wallTop = pOuter.clone().setY(2.20);
-      const overhangTip = pOuter.clone().add(outwardOffset).setY(2.12);
-      createBar(eavesTop, overhangTip, 0.0085, 'eavesRing', structureGroup);
-      createBar(wallTop, overhangTip, 0.0075, 'eavesRing', structureGroup);
-
-      // سلة الركام المدفونة تحت الأرض (y < 0)
       const basketMesh = new THREE.Mesh(
         new THREE.BoxGeometry(0.46, 0.30, 0.46),
         groupMaterials['ballastUplift']
@@ -1276,8 +1267,8 @@
     });
 
     // -------------------------------------------------------------------------
-    // هـ. الحزام العلوي المبسّط (Simple Flat-Ladder Ring Beam عند +2.40m فقط + طوق +2.20m)
-    //     تمت إزالة الأطواق الزائدة والمقصات المائلة التي كانت تقطع الأعمدة!
+    // هـ. حزام السلم الأفقي المتعامد (90° Orthogonal Rungs)
+    //     + الشوكات الهرمية ثلاثية الأبعاد (3D V-Tripod Forks) + سيخ الحافة المستمر (Φ6mm)
     // -------------------------------------------------------------------------
     const cornersOuter = [
       new THREE.Vector3(-4.5, 0, -4.5),
@@ -1293,12 +1284,38 @@
       new THREE.Vector3(-4.32, 0, 4.32)
     ];
 
+    // بروز الشوكة الهرمية 25cm للخارج عند منسوب +2.12m
     const cornersOverhang = [
-      new THREE.Vector3(-4.80, 0, -4.80),
-      new THREE.Vector3(4.80, 0, -4.80),
-      new THREE.Vector3(4.80, 0, 4.80),
-      new THREE.Vector3(-4.80, 0, 4.80)
+      new THREE.Vector3(-4.75, 0, -4.75),
+      new THREE.Vector3(4.75, 0, -4.75),
+      new THREE.Vector3(4.75, 0, 4.75),
+      new THREE.Vector3(-4.75, 0, 4.75)
     ];
+
+    // دالة لإنشاء شوكة هرمية ثلاثية الأبعاد (3D V-Tripod Fork) على طول الجدار
+    function create3DWallFork(centerDist, wallDir, inDir, outDir, wallOriginOuter) {
+      const pOutCenter = wallOriginOuter.clone().addScaledVector(wallDir, centerDist);
+      const pInCenter = pOutCenter.clone().addScaledVector(inDir, 0.18);
+      const tip = pOutCenter.clone().addScaledVector(outDir, 0.25).setY(2.12);
+
+      // ساقان علويتان تبدآن من السيخ الداخلي (+2.40m) بفتح زاوية V (عرض ±14cm) وتعبران السيخ الخارجي إلى رأس الشوكة
+      const spread = 0.14;
+      const inLeft = pInCenter.clone().addScaledVector(wallDir, -spread).setY(2.40);
+      const outLeft = pOutCenter.clone().addScaledVector(wallDir, -spread).setY(2.40);
+      const inRight = pInCenter.clone().addScaledVector(wallDir, spread).setY(2.40);
+      const outRight = pOutCenter.clone().addScaledVector(wallDir, spread).setY(2.40);
+
+      // استمرارية الساقين داخل حزام السلم (من السيخ الداخلي إلى الخارجي بزاوية قائمة 90°)
+      createBar(inLeft, outLeft, 0.008, 'outriggerForks', structureGroup);
+      createBar(inRight, outRight, 0.008, 'outriggerForks', structureGroup);
+
+      // التقاء الساقين العلويتين في رأس الشوكة (شكل V ثلاثي الأبعاد يقاوم الشد الجانبي)
+      createBar(outLeft, tip, 0.0085, 'outriggerForks', structureGroup);
+      createBar(outRight, tip, 0.0085, 'outriggerForks', structureGroup);
+
+      // دعامة ضغط سفلية من طوق (+2.20m) إلى رأس الشوكة (+2.12m) بطول انبعاج L_cr = 0.32m
+      createBar(pOutCenter.clone().setY(2.20), tip, 0.0085, 'outriggerForks', structureGroup);
+    }
 
     for (let i = 0; i < 4; i++) {
       const next = (i + 1) % 4;
@@ -1306,36 +1323,62 @@
       const c2 = cornersOuter[next];
       const in1 = cornersInner[i];
       const in2 = cornersInner[next];
+      const ov1 = cornersOverhang[i];
+      const ov2 = cornersOverhang[next];
 
-      // 1. سلم أفقي مستوٍ تماماً عند +2.40m (سيخ خارجي Φ8 + سيخ داخلي Φ8 في نفس المنسوب +2.40m)
+      const wallDir = new THREE.Vector3().subVectors(c2, c1).normalize();
+      // المتجه المتعامد للداخل بزاوية 90 درجة تماماً
+      const inDir = new THREE.Vector3(-wallDir.z, 0, wallDir.x).normalize();
+      const outDir = inDir.clone().negate();
+
+      // 1. سلم أفقي مستوٍ عند +2.40m (سيخ خارجي Φ8 + سيخ داخلي Φ8)
       createBar(c1.clone().setY(2.40), c2.clone().setY(2.40), 0.013, 'eavesRing', structureGroup);
       createBar(in1.clone().setY(2.40), in2.clone().setY(2.40), 0.013, 'eavesRing', structureGroup);
 
-      // درجات السلم الأفقية البسيطة (Φ6mm كل 0.75m عند نفس المنسوب +2.40m)
-      const ladderRungs = 12;
-      for (let k = 1; k < ladderRungs; k++) {
-        const t = k / ladderRungs;
-        const pOut = new THREE.Vector3().lerpVectors(c1, c2, t).setY(2.40);
-        const pIn = new THREE.Vector3().lerpVectors(in1, in2, t).setY(2.40);
+      // درجات السلم الأفقية المتعامدة 90° تماماً (بدون أي ميلان نسبي!)
+      // نضع الدرجات على مسافات متساوية من 0.18m إلى 8.82m، وكل درجة تعبر للداخل عمودياً بمسافة 0.18m
+      const rungSteps = 12;
+      for (let k = 1; k < rungSteps; k++) {
+        const dist = 0.18 + (k / rungSteps) * 8.64;
+        const pOut = c1.clone().addScaledVector(wallDir, dist).setY(2.40);
+        const pIn = pOut.clone().addScaledVector(inDir, 0.18).setY(2.40);
         createBar(pOut, pIn, 0.008, 'eavesRing', structureGroup);
       }
 
-      // 2. طوق سفلي واحد عند +2.20m لتثبيت أعلى شادر الجدار والأوتار السفلية
+      // 2. طوق سفلي عند +2.20m
       createBar(c1.clone().setY(2.20), c2.clone().setY(2.20), 0.011, 'eavesRing', structureGroup);
 
-      // 3. شكالات القص القطرية داخل مستوى الجدار الخارجي (X-Bracing)
-      const dir = new THREE.Vector3().subVectors(c2, c1).normalize();
-      const bayEnd1 = c1.clone().addScaledVector(dir, 2.25);
+      // 3. سيخ الحافة المستمر (Continuous Φ6mm Edge Bar) عند منسوب +2.12m وبروز 25cm يربط جميع رؤوس الشوكات
+      createBar(ov1.clone().setY(2.12), ov2.clone().setY(2.12), 0.0095, 'outriggerForks', structureGroup);
+
+      // 4. الشوكات الهرمية ثلاثية الأبعاد (3D V-Tripods) على طول الجدار كل 1.125m (عند الأعمدة ومنتصف البواكي)
+      const forkStations = [1.125, 2.25, 3.375, 4.50, 5.625, 6.75, 7.875];
+      forkStations.forEach(st => {
+        create3DWallFork(st, wallDir, inDir, outDir, c1);
+      });
+
+      // 5. شوكة الركن الهرمية ثلاثية الأبعاد عند الزاوية القطرية (Corner 3D Tripod)
+      const prevWallDir = new THREE.Vector3().subVectors(c1, cornersOuter[(i + 3) % 4]).normalize();
+      const cornerTip = ov1.clone().setY(2.12);
+      const legA = c1.clone().addScaledVector(wallDir, 0.22).setY(2.40);
+      const legB = c1.clone().addScaledVector(prevWallDir, -0.22).setY(2.40);
+      createBar(in1.clone().setY(2.40), c1.clone().setY(2.40), 0.009, 'outriggerForks', structureGroup);
+      createBar(legA, cornerTip, 0.009, 'outriggerForks', structureGroup);
+      createBar(legB, cornerTip, 0.009, 'outriggerForks', structureGroup);
+      createBar(c1.clone().setY(2.20), cornerTip, 0.009, 'outriggerForks', structureGroup);
+
+      // 6. شكالات القص القطرية داخل مستوى الجدار الخارجي (X-Bracing)
+      const bayEnd1 = c1.clone().addScaledVector(wallDir, 2.25);
       createBar(c1.clone().setY(0.05), bayEnd1.clone().setY(2.20), 0.012, 'wallBracing', structureGroup);
       createBar(c1.clone().setY(2.20), bayEnd1.clone().setY(0.05), 0.012, 'wallBracing', structureGroup);
 
-      const bayStart2 = c2.clone().addScaledVector(dir, -2.25);
+      const bayStart2 = c2.clone().addScaledVector(wallDir, -2.25);
       createBar(bayStart2.clone().setY(0.05), c2.clone().setY(2.20), 0.012, 'wallBracing', structureGroup);
       createBar(bayStart2.clone().setY(2.20), c2.clone().setY(0.05), 0.012, 'wallBracing', structureGroup);
     }
 
     // -------------------------------------------------------------------------
-    // و. شادر السقف + شفة الصد + قبة فنتوري + متاهة Z (مشدودة بحبال الشادر بدون حديد زائد)
+    // و. شادر السقف + شفة الصد + قبة فنتوري + متاهة Z
     // -------------------------------------------------------------------------
     const tarpMat = new THREE.MeshStandardMaterial({
       color: 0x0ea5e9,
@@ -1433,7 +1476,6 @@
       skirtGeo.computeVertexNormals();
       tarpGroup.add(new THREE.Mesh(skirtGeo, overhangTarpMat));
 
-      // ستارة الصد الداخلية مربوطة مباشرة في القائم الداخلي للعمود (من +2.18m إلى +2.33m) بدون حديد إضافي
       const bafGeo = new THREE.BufferGeometry();
       bafGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
         in1.x, 2.18, in1.z, in2.x, 2.18, in2.z, in2.x, 2.33, in2.z,
@@ -1444,9 +1486,10 @@
     }
 
     // -------------------------------------------------------------------------
-    // ز. حركة تيارات الرياح ومسار الهواء داخل متاهة Z الجانبية وقبة فنتوري
+    // ز. حركة تيارات الرياح (متوقفة افتراضياً حسب طلبك، تعمل عند تفعيل الزر)
     // -------------------------------------------------------------------------
     const windGroup = new THREE.Group();
+    windGroup.visible = state.showWind; // false افتراضياً
     scene.add(windGroup);
     const windArrows = [];
 
@@ -1499,7 +1542,7 @@
           item.mesh.position.set(x, y, z);
           item.mesh.rotation.set(0, 0, 0);
         } else if (item.mode === 'louver') {
-          const z = 4.76 - p * 0.60;
+          const z = 4.72 - p * 0.56;
           let y = 2.10;
           if (p < 0.4) {
             y = 2.08 + (p / 0.4) * 0.18;
@@ -1542,7 +1585,7 @@
         }
 
         if (state.selectedKey === key) {
-          mat.emissive.setHex(0x1e40af);
+          mat.emissive.setHex(0x1e3a8a);
         } else {
           mat.emissive.setHex(0x000000);
         }
@@ -1613,8 +1656,46 @@
     }
 
     // =========================================================================
-    // 5. التفاعل بالنقر على المجسم وأزرار الكاميرا المجهرية
+    // 5. إدارة اللوحات القابلة للطي والتفاعل بالنقر (Raycasting)
     // =========================================================================
+    const rightPanel = document.getElementById('right-panel');
+    const leftPanel = document.getElementById('left-panel');
+    const btnToggleRight = document.getElementById('btn-toggle-right');
+    const btnToggleLeft = document.getElementById('btn-toggle-left');
+
+    function syncPanelButtons() {
+      btnToggleRight.classList.toggle('active', !rightPanel.classList.contains('collapsed'));
+      btnToggleLeft.classList.toggle('active', !leftPanel.classList.contains('collapsed'));
+    }
+
+    btnToggleRight.addEventListener('click', () => {
+      const isOpening = rightPanel.classList.contains('collapsed');
+      rightPanel.classList.toggle('collapsed');
+      if (isOpening && window.innerWidth < 1200) {
+        leftPanel.classList.add('collapsed');
+      }
+      syncPanelButtons();
+    });
+
+    btnToggleLeft.addEventListener('click', () => {
+      const isOpening = leftPanel.classList.contains('collapsed');
+      leftPanel.classList.toggle('collapsed');
+      if (isOpening && window.innerWidth < 1200) {
+        rightPanel.classList.add('collapsed');
+      }
+      syncPanelButtons();
+    });
+
+    document.getElementById('close-right').addEventListener('click', () => {
+      rightPanel.classList.add('collapsed');
+      syncPanelButtons();
+    });
+
+    document.getElementById('close-left').addEventListener('click', () => {
+      leftPanel.classList.add('collapsed');
+      syncPanelButtons();
+    });
+
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
     let pointerDownPos = { x: 0, y: 0 };
@@ -1692,8 +1773,8 @@
       document.getElementById('mode-sf').classList.remove('active');
       document.getElementById('legend-bar').innerHTML = `
         <div class="legend-item"><span class="dot" style="background: #f43f5e;"></span> قطر Φ10 mm (الساري وأطواق التاج والأعمدة)</div>
-        <div class="legend-item"><span class="dot" style="background: #38bdf8;"></span> قطر Φ8 mm (الأوتار وحزام السلم العلوي والشكالات)</div>
-        <div class="legend-item"><span class="dot" style="background: #a855f7;"></span> قطر Φ6 mm (الأوتار الفرعية وفنتوري والحلقات)</div>
+        <div class="legend-item"><span class="dot" style="background: #38bdf8;"></span> قطر Φ8 mm (الأوتار وحزام السلم والشكالات)</div>
+        <div class="legend-item"><span class="dot" style="background: #a855f7;"></span> قطر Φ6 mm (شوكات 3D وفنتوري والحلقات)</div>
       `;
       update3DColors();
     });
@@ -1723,7 +1804,7 @@
       e.target.classList.toggle('active', state.autoRotate);
     });
 
-    // أزرار الكاميرا الشاملة (بما فيها زوم موضع الدائرة الحمراء عند العمود الوسطي)
+    // الزوايا الـ 6 المختصرة للكاميرا
     document.querySelectorAll('[data-cam]').forEach(btn => {
       btn.addEventListener('click', () => {
         const mode = btn.getAttribute('data-cam');
@@ -1733,26 +1814,17 @@
         } else if (mode === 'top') {
           camera.position.set(0, 14.5, 0.01);
           controls.target.set(0, 2.5, 0);
-        } else if (mode === 'side') {
-          camera.position.set(0, 2.2, 13.5);
-          controls.target.set(0, 1.9, 0);
-        } else if (mode === 'mid_col_fix') {
-          // زوم مجهري على العمود الوسطي (2.25m, 4.50m) لفحص الحزام المبسّط والوتر الفرعي المستقيم (موضع الدائرة الحمراء)
-          camera.position.set(3.10, 3.35, 5.75);
-          controls.target.set(2.25, 2.35, 3.80);
-          state.selectedKey = 'eavesRing';
-          updateUI();
-          update3DColors();
-        } else if (mode === 'side_louver') {
-          camera.position.set(1.35, 2.24, 5.25);
-          controls.target.set(0, 2.25, 4.45);
-          state.selectedKey = 'eavesRing';
-          updateUI();
-          update3DColors();
         } else if (mode === 'hub_micro') {
           camera.position.set(0.95, 4.25, 0.95);
           controls.target.set(0, 3.55, 0);
           state.selectedKey = 'cupolaFrame';
+          updateUI();
+          update3DColors();
+        } else if (mode === 'side_louver') {
+          // زوم يوضح الشوكات الهرمية 3D وسيخ الحافة المستمر والحزام الأفقي المتعامد
+          camera.position.set(2.85, 2.65, 5.45);
+          controls.target.set(2.25, 2.25, 4.40);
+          state.selectedKey = 'outriggerForks';
           updateUI();
           update3DColors();
         } else if (mode === 'lower_hub') {
@@ -1770,17 +1842,6 @@
         }
         controls.update();
       });
-    });
-
-    const rightPanel = document.getElementById('right-panel');
-    const leftPanel = document.getElementById('left-panel');
-    document.getElementById('btn-mob-right').addEventListener('click', () => {
-      rightPanel.classList.toggle('hidden-mobile');
-      leftPanel.classList.add('hidden-mobile');
-    });
-    document.getElementById('btn-mob-left').addEventListener('click', () => {
-      leftPanel.classList.toggle('hidden-mobile');
-      rightPanel.classList.add('hidden-mobile');
     });
 
     window.addEventListener('resize', () => {
