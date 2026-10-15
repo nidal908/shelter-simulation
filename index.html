@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>محاكاة 3D للهيكل الشبكي المشدود | 9m × 9m Bare Rebar Lattice</title>
+  <!-- خط Cairo العربي و JetBrains Mono للمعادلات والأرقام -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- مكتبة Three.js و OrbitControls عبر CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #070d19;
+      --panel-bg: rgba(12, 22, 38, 0.88);
+      --panel-border: rgba(56, 189, 248, 0.25);
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --sf-ok: #10b981;       /* 1.25 <= SF <= 1.75 */
+      --sf-warn: #f59e0b;     /* SF > 1.75 (Over-designed) */
+      --sf-danger: #ef4444;   /* SF < 1.25 (Failure Risk) */
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      font-family: 'Cairo', sans-serif;
+      color: var(--text-main);
+      user-select: none;
+    }
+
+    #canvas-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* الشريط العلوي */
+    .top-bar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      left: 12px;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 10px 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #0369a1, #0ea5e9);
+      color: #fff;
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 6px 10px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text h1 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .kpi-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .kpi-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 8px;
+      padding: 4px 12px;
+      text-align: center;
+      min-width: 110px;
+    }
+
+    .kpi-label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .kpi-val {
+      font-family: var(--mono);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      direction: ltr;
+      display: inline-block;
+    }
+
+    /* اللوحة الجانبية اليمنى (عناصر التحكم) */
+    .side-panel {
+      position: absolute;
+      top: 84px;
+      right: 12px;
+      bottom: 12px;
+      width: 340px;
+      z-index: 10;
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease;
+    }
+
+    /* اللوحة الجانبية اليسرى (فحص العناصر ومصفوفة الأمان) */
+    .left-panel {
+      position: absolute;
+      top: 84px;
+      left: 12px;
+      bottom: 12px;
+      width: 350px;
+      z-index: 10;
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+      padding-bottom: 6px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .control-group {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+    }
+
+    .slider-val {
+      font-family: var(--mono);
+      font-weight: 700;
+      color: #fff;
+      background: rgba(2, 132, 199, 0.3);
+      padding: 2px 7px;
+      border-radius: 5px;
+      direction: ltr;
+      font-size: 0.78rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 4px;
+      outline: none;
+      accent-color: var(--accent-light);
+      cursor: pointer;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .btn {
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: var(--text-main);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .btn:hover {
+      border-color: var(--accent-light);
+      background: rgba(2, 132, 199, 0.25);
+    }
+
+    .btn.active {
+      background: var(--accent);
+      border-color: var(--accent-light);
+      color: #fff;
+    }
+
+    /* بطاقة فحص العنصر المحدد */
+    .inspector-box {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .inspector-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .inspector-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      font-size: 0.75rem;
+    }
+
+    .ins-item {
+      background: rgba(30, 41, 59, 0.6);
+      padding: 6px 8px;
+      border-radius: 6px;
+    }
+
+    .ins-item span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.68rem;
+    }
+
+    .ins-item strong {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: #f8fafc;
+      direction: ltr;
+      display: inline-block;
+    }
+
+    /* جدول مصفوفة معاملات الأمان */
+    .sf-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sf-row {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .sf-row:hover {
+      border-color: var(--accent-light);
+    }
+
+    .sf-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.76rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .sf-badge {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 4px;
+      direction: ltr;
+    }
+
+    .sf-bar-track {
+      position: relative;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .sf-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.25s ease, background-color 0.25s ease;
+    }
+
+    /* مفتاح الألوان السفلي */
+    .legend-bar {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--panel-border);
+      border-radius: 999px;
+      padding: 6px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* أزرار الطي للموبايل */
+    .mobile-toggles {
+      display: none;
+      position: absolute;
+      bottom: 56px;
+      right: 12px;
+      left: 12px;
+      z-index: 20;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .mob-btn {
+      pointer-events: auto;
+      background: var(--accent);
+      color: #fff;
+      border: 1px solid var(--accent-light);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      cursor: pointer;
+    }
+
+    @media (max-width: 960px) {
+      .side-panel, .left-panel {
+        top: auto;
+        bottom: 105px;
+        max-height: 52vh;
+        width: calc(100% - 24px);
+      }
+      .side-panel.hidden-mobile {
+        transform: translateX(110%);
+      }
+      .left-panel.hidden-mobile {
+        transform: translateX(-110%);
+      }
+      .mobile-toggles {
+        display: flex;
+      }
+      .kpi-strip {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- حاوية المشهد ثلاثي الأبعاد -->
+  <div id="canvas-container"></div>
+
+  <!-- الشريط العلوي -->
+  <header class="top-bar">
+    <div class="brand-title">
+      <div class="brand-badge">9m × 9m | 81m²</div>
+      <div class="brand-text">
+        <h1>القبة المخروطية الشدّية المزدوجة (Bi-Chord Jawerth Rebar Lattice)</h1>
+        <p>صفر خرسانة • صفر لحام • ساري مركزي مشبّك وحيد • أقطار Φ10, Φ8, Φ6 mm</p>
+      </div>
+    </div>
+
+    <div class="kpi-strip">
+      <div class="kpi-card">
+        <span class="kpi-label">وزن حديد الهيكل الفوقي</span>
+        <span class="kpi-val" id="kpi-weight">258.00 kg</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">الاستهلاك النوعي</span>
+        <span class="kpi-val">3.185 kg/m²</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">ضغط الرياح الديناميكي</span>
+        <span class="kpi-val" id="kpi-qw">0.383 kN/m²</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">النطاق الإلزامي للأمان</span>
+        <span class="kpi-val" id="kpi-status" style="color: var(--sf-ok);">1.25 ≤ SF ≤ 1.75 ✓</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- اللوحة اليمنى: المدخلات والتحكم بالمشهد -->
+  <aside class="side-panel" id="right-panel">
+    <div class="section-title">
+      <span>1. بارامترات التحميل والانبعاج</span>
+      <button class="btn" style="min-height:26px; padding:2px 8px; font-size:0.7rem;" id="btn-reset">إعادة ضبط</button>
+    </div>
+
+    <div class="control-group">
+      <div class="slider-header">
+        <span>سرعة الرياح التصميمية (V)</span>
+        <span class="slider-val" id="val-wind">25.0 m/s (90 km/h)</span>
+      </div>
+      <input type="range" id="slider-wind" min="15" max="32" step="0.5" value="25" />
+    </div>
+
+    <div class="control-group">
+      <div class="slider-header">
+        <span>معامل تباعد التربيط (L_cr Scale)</span>
+        <span class="slider-val" id="val-lcr">1.00× (قياسي)</span>
+      </div>
+      <input type="range" id="slider-lcr" min="0.80" max="1.30" step="0.02" value="1.00" />
+    </div>
+
+    <div class="control-group">
+      <div class="slider-header">
+        <span>إجمالي كتل الركام الميت (Ballast)</span>
+        <span class="slider-val" id="val-ballast">2670 kg</span>
+      </div>
+      <input type="range" id="slider-ballast" min="1900" max="3400" step="30" value="2670" />
+    </div>
+
+    <div class="section-title">
+      <span>2. نمط التلوين والعرض الفراغي</span>
+    </div>
+
+    <div class="btn-grid">
+      <button class="btn active" id="mode-sf">تلوين حسب الأمان (SF)</button>
+      <button class="btn" id="mode-dia">تلوين حسب القطر (Φ)</button>
+      <button class="btn active" id="toggle-tarp">شادر HDPE + فنتوري</button>
+      <button class="btn active" id="toggle-wind">أسهم تيارات الرياح</button>
+      <button class="btn active" id="toggle-ballast">سلال الركام والأوتاد</button>
+      <button class="btn" id="toggle-autorotate">دوران تلقائي 360°</button>
+    </div>
+
+    <div class="section-title">
+      <span>3. زوايا الكاميرا الهندسية</span>
+    </div>
+
+    <div class="btn-grid">
+      <button class="btn" data-cam="iso">منظور كلي (3D Iso)</button>
+      <button class="btn" data-cam="top">مسقط أفقي (Top Plan)</button>
+      <button class="btn" data-cam="side">قطاع جانبي (Elevation)</button>
+      <button class="btn" data-cam="hub">تفصيلة التاج وفنتوري</button>
+    </div>
+  </aside>
+
+  <!-- اللوحة اليسرى: فحص العنصر ومصفوفة معاملات الأمان -->
+  <aside class="left-panel hidden-mobile" id="left-panel">
+    <div class="section-title">
+      <span>فاحص العناصر (انقر على أي سيخ 3D)</span>
+    </div>
+
+    <div class="inspector-box">
+      <div class="inspector-title" id="ins-name">الساري المركزي المشبّك (Central Laced Mast)</div>
+      <div class="inspector-grid">
+        <div class="ins-item">
+          <span>القطر المعتمد (Φ)</span>
+          <strong id="ins-dia">4 × Φ10 mm</strong>
+        </div>
+        <div class="ins-item">
+          <span>طول الانبعاج (L_cr)</span>
+          <strong id="ins-lcr">0.50 m</strong>
+        </div>
+        <div class="ins-item">
+          <span>القوة التصميمية القصوى</span>
+          <strong id="ins-load">10.80 kN</strong>
+        </div>
+        <div class="ins-item">
+          <span>المقاومة الحرجة (P_cr / P_y)</span>
+          <strong id="ins-cap">15.50 kN</strong>
+        </div>
+        <div class="ins-item">
+          <span>الوزن الإجمالي للعنصر</span>
+          <strong id="ins-weight">9.38 kg</strong>
+        </div>
+        <div class="ins-item">
+          <span>معامل الأمان اللحظي (SF)</span>
+          <strong id="ins-sf" style="color: var(--sf-ok);">1.44 (مطابق)</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <span>مصفوفة التدقيق اللحظي (1.25 ≤ SF ≤ 1.75)</span>
+    </div>
+
+    <div class="sf-list" id="sf-matrix"></div>
+  </aside>
+
+  <!-- أزرار التحكم للموبايل -->
+  <div class="mobile-toggles">
+    <button class="mob-btn" id="btn-mob-right">⚙️ التحكم والأحمال</button>
+    <button class="mob-btn" id="btn-mob-left">📊 فحص الأمان (SF)</button>
+  </div>
+
+  <!-- شريط الإيضاح السفلي -->
+  <div class="legend-bar" id="legend-bar">
+    <div class="legend-item"><span class="dot" style="background: var(--sf-ok);"></span> آمن ومثالي (1.25 ≤ SF ≤ 1.75)</div>
+    <div class="legend-item"><span class="dot" style="background: var(--sf-warn);"></span> فائض أمان / وزن زائد (SF &gt; 1.75)</div>
+    <div class="legend-item"><span class="dot" style="background: var(--sf-danger);"></span> خطر انبعاج أو خضوع (SF &lt; 1.25)</div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. قاعدة البيانات الهندسية والفيزيائية للهيكل الفوقي (BOQ & Structural Data)
+    // =========================================================================
+    const STRUCTURAL_ELEMENTS = {
+      mast: {
+        id: 'mast',
+        name: 'الساري المركزي المشبّك (Central Laced Mast)',
+        diaText: '4 × Φ10 mm (+ أساور Φ6)',
+        diaGroup: 10,
+        baseLcr: 0.50,
+        baseLoad: 10.80,
+        baseCap: 15.50,
+        weight: 9.38,
+        mode: 'buckling',
+        windSensitivity: 0.45
+      },
+      lowerChord: {
+        id: 'lowerChord',
+        name: 'الأوتار الشعاعية السفلية المقاومة للرفع (Lower Chords)',
+        diaText: '8 × Φ8 mm',
+        diaGroup: 8,
+        baseLcr: 0.40,
+        baseLoad: 8.20,
+        baseCap: 12.065,
+        weight: 18.33,
+        mode: 'tension',
+        windSensitivity: 0.92
+      },
+      upperChord: {
+        id: 'upperChord',
+        name: 'الأوتار الشعاعية العلوية للسقف (Upper Chords)',
+        diaText: '8 × Φ8 mm',
+        diaGroup: 8,
+        baseLcr: 0.40,
+        baseLoad: 1.70,
+        baseCap: 2.481,
+        weight: 18.82,
+        mode: 'buckling',
+        windSensitivity: 0.85
+      },
+      webStruts: {
+        id: 'webStruts',
+        name: 'دعامات الشبكة الشعاعية الرابطة (Truss Web Struts)',
+        diaText: 'Φ6 mm (شبكة Jawerth)',
+        diaGroup: 6,
+        baseLcr: 0.35,
+        baseLoad: 0.720,
+        baseCap: 1.025,
+        weight: 16.87,
+        mode: 'buckling',
+        windSensitivity: 0.80
+      },
+      purlinRings: {
+        id: 'purlinRings',
+        name: 'الحلقات المضلعة المتمركزة (Purlin Tension Rings)',
+        diaText: 'Φ6 mm (تباعد 0.40m)',
+        diaGroup: 6,
+        baseLcr: 0.40,
+        baseLoad: 4.58,
+        baseCap: 6.785,
+        weight: 43.96,
+        mode: 'tension',
+        windSensitivity: 0.88
+      },
+      perimCols: {
+        id: 'perimCols',
+        name: 'أعمدة السور المحيطية المزدوجة (16 Laced Columns)',
+        diaText: '16 × (2×Φ10 mm + Φ6)',
+        diaGroup: 10,
+        baseLcr: 0.45,
+        baseLoad: 3.203,
+        baseCap: 4.785,
+        weight: 48.37,
+        mode: 'buckling',
+        windSensitivity: 0.86
+      },
+      eavesRing: {
+        id: 'eavesRing',
+        name: 'الحزام الشبكي الطوقي العلوي (Eaves Ring Truss)',
+        diaText: '2 × Φ8 mm + أساور Φ6',
+        diaGroup: 8,
+        baseLcr: 0.45,
+        baseLoad: 8.15,
+        baseCap: 12.065,
+        weight: 30.34,
+        mode: 'tension',
+        windSensitivity: 0.82
+      },
+      wallBracing: {
+        id: 'wallBracing',
+        name: 'شكالات القص القطرية للجدران (In-Plane X-Bracing)',
+        diaText: 'Φ8 mm (مشدودة مسبقاً)',
+        diaGroup: 8,
+        baseLcr: 1.50,
+        baseLoad: 8.01,
+        baseCap: 12.065,
+        weight: 20.86,
+        mode: 'tension',
+        windSensitivity: 0.90
+      },
+      tieNodes: {
+        id: 'tieNodes',
+        name: 'عقد الربط المزدوجة ووصلات الخطاف 180° (Tie-Wire Nodes)',
+        diaText: 'سلك مجلفن Φ1.2 mm',
+        diaGroup: 6,
+        baseLcr: 0.00,
+        baseLoad: 0.58,
+        baseCap: 0.85,
+        weight: 5.56,
+        mode: 'shear',
+        windSensitivity: 0.85
+      },
+      ballastUplift: {
+        id: 'ballastUplift',
+        name: 'تثبيت القواعد ضد الرفع والانقلاب (Ballast & Stakes)',
+        diaText: '17 سلة ركام + 32 وتد سكراب',
+        diaGroup: 10,
+        baseLcr: 0.00,
+        baseLoad: 19.06,
+        baseCap: 28.75,
+        weight: 2670.0,
+        mode: 'ballast',
+        windSensitivity: 1.00
+      }
+    };
+
+    const state = {
+      windSpeed: 25.0,       // m/s
+      lcrScale: 1.00,        // multiplier
+      ballastMass: 2670,     // kg
+      colorMode: 'sf',       // 'sf' or 'dia'
+      showTarp: true,
+      showWind: true,
+      showBallast: true,
+      autoRotate: false,
+      selectedKey: 'mast',
+      results: {}
+    };
+
+    // =========================================================================
+    // 2. محرك الحساب الإنشائي اللحظي (Real-Time Mechanics Solver)
+    // =========================================================================
+    function computeStructuralState() {
+      const windRatio = Math.pow(state.windSpeed / 25.0, 2);
+      const lcrRatio = state.lcrScale;
+      const ballastRatio = state.ballastMass / 2670.0;
+
+      const qw = 0.5 * 1.225 * Math.pow(state.windSpeed, 2) / 1000; // kN/m^2
+      document.getElementById('kpi-qw').textContent = qw.toFixed(3) + ' kN/m²';
+
+      let allInBounds = true;
+
+      Object.keys(STRUCTURAL_ELEMENTS).forEach(key => {
+        const el = STRUCTURAL_ELEMENTS[key];
+        // حساب القوة التصميمية تبعاً لسرعة الرياح
+        const fixedPortion = 1 - el.windSensitivity;
+        const currentLoad = el.baseLoad * (fixedPortion + el.windSensitivity * windRatio);
+
+        // حساب المقاومة الحرجة تبعاً لطول الانبعاج أو وزن الركام
+        let currentCap = el.baseCap;
+        if (el.mode === 'buckling') {
+          currentCap = el.baseCap / Math.pow(lcrRatio, 2);
+        } else if (el.mode === 'ballast') {
+          const ballastWeightKN = (state.ballastMass * 9.81) / 1000;
+          currentCap = ballastWeightKN + 2.56; // + مقاومة الأوتاد في الطين
+        }
+
+        const sf = currentCap / currentLoad;
+        if (sf < 1.25 || sf > 1.75) {
+          allInBounds = false;
+        }
+
+        state.results[key] = {
+          load: currentLoad,
+          cap: currentCap,
+          lcr: el.baseLcr * lcrRatio,
+          sf: sf
+        };
+      });
+
+      const statusEl = document.getElementById('kpi-status');
+      if (allInBounds) {
+        statusEl.textContent = '1.25 ≤ SF ≤ 1.75 ✓';
+        statusEl.style.color = 'var(--sf-ok)';
+      } else {
+        statusEl.textContent = 'خارج النطاق الإلزامي !';
+        statusEl.style.color = 'var(--sf-danger)';
+      }
+
+      updateUI();
+      update3DColors();
+    }
+
+    // =========================================================================
+    // 3. إعداد المشهد ثلاثي الأبعاد (Three.js Scene & Geometry Builder)
+    // =========================================================================
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x070d19);
+    scene.fog = new THREE.FogExp2(0x070d19, 0.028);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 150);
+    camera.position.set(11.5, 7.8, 11.5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 1.8, 0);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.maxPolarAngle = Math.PI / 2 + 0.08;
+    controls.minDistance = 2.5;
+    controls.maxDistance = 28;
+
+    // الإضاءة
+    const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.65);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.9);
+    dirLight1.position.set(12, 18, 10);
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.4);
+    dirLight2.position.set(-12, 8, -10);
+    scene.add(dirLight2);
+
+    // أرضية الموقع 9m x 9m
+    const groundGroup = new THREE.Group();
+    const slabGeo = new THREE.BoxGeometry(9.6, 0.08, 9.6);
+    const slabMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
+    const slabMesh = new THREE.Mesh(slabGeo, slabMat);
+    slabMesh.position.y = -0.04;
+    groundGroup.add(slabMesh);
+
+    const gridHelper = new THREE.GridHelper(9.0, 18, 0x0284c7, 0x1e293b);
+    gridHelper.position.y = 0.01;
+    groundGroup.add(gridHelper);
+    scene.add(groundGroup);
+
+    // قواميس المواد القابلة للتحديث اللوني
+    const groupMaterials = {};
+    Object.keys(STRUCTURAL_ELEMENTS).forEach(key => {
+      groupMaterials[key] = new THREE.MeshStandardMaterial({
+        color: 0x10b981,
+        metalness: 0.55,
+        roughness: 0.35
+      });
+    });
+
+    const pickableMeshes = [];
+
+    // دالة مساعدة لرسم سيخ أسطواني بين نقطتين في الفضاء 3D
+    function createBar(p1, p2, radius, elementKey, parentGroup) {
+      const vec = new THREE.Vector3().subVectors(p2, p1);
+      const len = vec.length();
+      if (len < 0.001) return null;
+      const geo = new THREE.CylinderGeometry(radius, radius, len, 8, 1);
+      geo.translate(0, len / 2, 0);
+      geo.rotateX(Math.PI / 2);
+      const mesh = new THREE.Mesh(geo, groupMaterials[elementKey]);
+      mesh.position.copy(p1);
+      mesh.lookAt(p2);
+      mesh.userData = { elementKey };
+      parentGroup.add(mesh);
+      pickableMeshes.push(mesh);
+      return mesh;
+    }
+
+    const structureGroup = new THREE.Group();
+    const ballastGroup = new THREE.Group();
+    const tarpGroup = new THREE.Group();
+    scene.add(structureGroup);
+    scene.add(ballastGroup);
+    scene.add(tarpGroup);
+
+    // -------------------------------------------------------------------------
+    // أ. بناء الساري المركزي المشبّك (4x Phi 10mm + أساور Phi 6mm)
+    // -------------------------------------------------------------------------
+    const mastOffset = 0.075; // 15cm x 15cm
+    const mastCorners = [
+      [-mastOffset, -mastOffset],
+      [mastOffset, -mastOffset],
+      [mastOffset, mastOffset],
+      [-mastOffset, mastOffset]
+    ];
+    mastCorners.forEach(([cx, cz]) => {
+      createBar(
+        new THREE.Vector3(cx, 0, cz),
+        new THREE.Vector3(cx, 3.65, cz),
+        0.016,
+        'mast',
+        structureGroup
+      );
+    });
+    // أساور الساري المركزي كل 0.45m
+    for (let y = 0.25; y <= 3.55; y += 0.45) {
+      for (let i = 0; i < 4; i++) {
+        const [x1, z1] = mastCorners[i];
+        const [x2, z2] = mastCorners[(i + 1) % 4];
+        createBar(new THREE.Vector3(x1, y, z1), new THREE.Vector3(x2, y, z2), 0.009, 'mast', structureGroup);
+        if (y + 0.45 <= 3.60) {
+          createBar(new THREE.Vector3(x1, y, z1), new THREE.Vector3(x2, y + 0.45, z2), 0.008, 'mast', structureGroup);
+        }
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // ب. بناء أعمدة السور المحيطية المزدوجة (16 Laced Columns - 2x Phi 10mm)
+    // -------------------------------------------------------------------------
+    const coords = [-4.5, -2.25, 0, 2.25, 4.5];
+    const perimPoints = [];
+    coords.forEach(x => perimPoints.push({ x, z: -4.5 }));
+    coords.slice(1, -1).forEach(z => perimPoints.push({ x: 4.5, z }));
+    coords.slice().reverse().forEach(x => perimPoints.push({ x, z: 4.5 }));
+    coords.slice(1, -1).reverse().forEach(z => perimPoints.push({ x: -4.5, z }));
+
+    perimPoints.forEach(pt => {
+      // اتجاه العمق نحو الداخل (18cm)
+      const dirToCenter = new THREE.Vector3(-pt.x, 0, -pt.z).normalize();
+      const pOuter = new THREE.Vector3(pt.x, 0, pt.z);
+      const pInner = new THREE.Vector3(pt.x, 0, pt.z).addScaledVector(dirToCenter, 0.18);
+
+      createBar(pOuter, pOuter.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
+      createBar(pInner, pInner.clone().setY(2.40), 0.015, 'perimCols', structureGroup);
+
+      // أساور العمود المزدوج كل 0.45m
+      for (let y = 0.45; y <= 2.35; y += 0.45) {
+        const a = pOuter.clone().setY(y);
+        const b = pInner.clone().setY(y);
+        createBar(a, b, 0.009, 'perimCols', structureGroup);
+        const aPrev = pOuter.clone().setY(y - 0.45);
+        createBar(aPrev, b, 0.008, 'perimCols', structureGroup);
+      }
+
+      // سلة الركام الميت عند قاعدة كل عمود + الأوتاد المدفونة
+      const basketGeo = new THREE.BoxGeometry(0.42, 0.28, 0.42);
+      const basketMesh = new THREE.Mesh(basketGeo, groupMaterials['ballastUplift']);
+      const basketPos = pInner.clone().addScaledVector(dirToCenter, 0.12);
+      basketPos.y = 0.14;
+      basketMesh.position.copy(basketPos);
+      basketMesh.userData = { elementKey: 'ballastUplift' };
+      ballastGroup.add(basketMesh);
+      pickableMeshes.push(basketMesh);
+
+      // وتد سكراب مائل 45 درجة
+      createBar(
+        basketPos.clone().setY(0.25),
+        basketPos.clone().add(new THREE.Vector3(0, -0.45, 0)),
+        0.012,
+        'ballastUplift',
+        ballastGroup
+      );
+    });
+
+    // سلة الركام المركزية حول الساري (350 kg)
+    const centerBallastGeo = new THREE.CylinderGeometry(0.48, 0.55, 0.32, 16);
+    const centerBallastMesh = new THREE.Mesh(centerBallastGeo, groupMaterials['ballastUplift']);
+    centerBallastMesh.position.set(0, 0.16, 0);
+    centerBallastMesh.userData = { elementKey: 'ballastUplift' };
+    ballastGroup.add(centerBallastMesh);
+    pickableMeshes.push(centerBallastMesh);
+
+    // -------------------------------------------------------------------------
+    // ج. الحزام الشبكي الطوقي العلوي (Eaves Ring Truss) وشكالات القص القطرية
+    // -------------------------------------------------------------------------
+    const corners = [
+      new THREE.Vector3(-4.5, 0, -4.5),
+      new THREE.Vector3(4.5, 0, -4.5),
+      new THREE.Vector3(4.5, 0, 4.5),
+      new THREE.Vector3(-4.5, 0, 4.5)
+    ];
+
+    for (let i = 0; i < 4; i++) {
+      const c1 = corners[i];
+      const c2 = corners[(i + 1) % 4];
+      // طوق علوي عند +2.40m وطوق سفلي عند +2.20m
+      createBar(c1.clone().setY(2.20), c2.clone().setY(2.20), 0.013, 'eavesRing', structureGroup);
+      createBar(c1.clone().setY(2.40), c2.clone().setY(2.40), 0.013, 'eavesRing', structureGroup);
+
+      // شكالات قص قطرية متصالبة X-Bracing في البواكي الركنية (2.25m عرض × 2.20m ارتفاع)
+      const dir = new THREE.Vector3().subVectors(c2, c1).normalize();
+      const bayEnd1 = c1.clone().addScaledVector(dir, 2.25);
+      createBar(c1.clone().setY(0.05), bayEnd1.clone().setY(2.20), 0.012, 'wallBracing', structureGroup);
+      createBar(c1.clone().setY(2.20), bayEnd1.clone().setY(0.05), 0.012, 'wallBracing', structureGroup);
+
+      const bayStart2 = c2.clone().addScaledVector(dir, -2.25);
+      createBar(bayStart2.clone().setY(0.05), c2.clone().setY(2.20), 0.012, 'wallBracing', structureGroup);
+      createBar(bayStart2.clone().setY(2.20), c2.clone().setY(0.05), 0.012, 'wallBracing', structureGroup);
+    }
+
+    // -------------------------------------------------------------------------
+    // د. الجوائز الشعاعية المزدوجة الـ 8 (Bi-Chord Jawerth Radial Trusses)
+    // -------------------------------------------------------------------------
+    const radialTargets = [
+      new THREE.Vector3(0, 0, -4.5),
+      new THREE.Vector3(4.5, 0, -4.5),
+      new THREE.Vector3(4.5, 0, 0),
+      new THREE.Vector3(4.5, 0, 4.5),
+      new THREE.Vector3(0, 0, 4.5),
+      new THREE.Vector3(-4.5, 0, 4.5),
+      new THREE.Vector3(-4.5, 0, 0),
+      new THREE.Vector3(-4.5, 0, -4.5)
+    ];
+
+    const ringCount = 10;
+    const ringNodesUpper = Array.from({ length: ringCount }, () => []);
+
+    radialTargets.forEach((target) => {
+      const segments = ringCount;
+      let prevUp = new THREE.Vector3(0, 3.60, 0);
+      let prevLow = new THREE.Vector3(0, 2.30, 0);
+
+      for (let s = 1; s <= segments; s++) {
+        const t = s / segments;
+        const x = target.x * t;
+        const z = target.z * t;
+
+        // منحنى الوتر العلوي (من +3.60m إلى +2.40m مع تقعر كاتيناري طفيف)
+        const yUp = 3.60 - 1.20 * t - 0.08 * Math.sin(Math.PI * t);
+        // منحنى الوتر السفلي المقاوم للرفع (من +2.30m إلى +2.40m مع تقوس للأعلى)
+        const yLow = 2.30 + 0.10 * t + 0.18 * Math.sin(Math.PI * t);
+
+        const curUp = new THREE.Vector3(x, yUp, z);
+        const curLow = new THREE.Vector3(x, yLow, z);
+
+        createBar(prevUp, curUp, 0.013, 'upperChord', structureGroup);
+        createBar(prevLow, curLow, 0.013, 'lowerChord', structureGroup);
+
+        // دعامات الشبكة الرأسية والمائلة (Phi 6mm)
+        if (s < segments) {
+          createBar(curUp, curLow, 0.008, 'webStruts', structureGroup);
+          createBar(prevUp, curLow, 0.008, 'webStruts', structureGroup);
+        }
+
+        // عقدة ربط كروية صغيرة لتمثيل التربيط المزدوج
+        if (s % 2 === 0) {
+          const nodeGeo = new THREE.SphereGeometry(0.028, 8, 8);
+          const nodeMesh = new THREE.Mesh(nodeGeo, groupMaterials['tieNodes']);
+          nodeMesh.position.copy(curUp);
+          nodeMesh.userData = { elementKey: 'tieNodes' };
+          structureGroup.add(nodeMesh);
+          pickableMeshes.push(nodeMesh);
+        }
+
+        ringNodesUpper[s - 1].push(curUp);
+        prevUp = curUp;
+        prevLow = curLow;
+      }
+    });
+
+    // -------------------------------------------------------------------------
+    // هـ. الحلقات المضلعة المتمركزة (Spider-Web Purlin Rings - Phi 6mm)
+    // -------------------------------------------------------------------------
+    ringNodesUpper.forEach((ringPts) => {
+      for (let i = 0; i < ringPts.length; i++) {
+        const pA = ringPts[i];
+        const pB = ringPts[(i + 1) % ringPts.length];
+        createBar(pA, pB, 0.009, 'purlinRings', structureGroup);
+      }
+    });
+
+    // -------------------------------------------------------------------------
+    // و. شادر البولي إيثيلين (UNICEF HDPE Tarp) وقبة التهوية فنتوري العلوية
+    // -------------------------------------------------------------------------
+    const tarpMat = new THREE.MeshStandardMaterial({
+      color: 0x0ea5e9,
+      transparent: true,
+      opacity: 0.24,
+      side: THREE.DoubleSide,
+      roughness: 0.6
+    });
+
+    // كسوة السقف المخروطية الهرمية (مع فتحة تهوية عليا حول المركز)
+    for (let i = 0; i < 8; i++) {
+      const r1 = ringNodesUpper[1][i];
+      const r2 = ringNodesUpper[1][(i + 1) % 8];
+      const e1 = ringNodesUpper[ringCount - 1][i];
+      const e2 = ringNodesUpper[ringCount - 1][(i + 1) % 8];
+
+      const geom = new THREE.BufferGeometry();
+      const vertices = new Float32Array([
+        r1.x, r1.y, r1.z,
+        e1.x, e1.y, e1.z,
+        e2.x, e2.y, e2.z,
+        r1.x, r1.y, r1.z,
+        e2.x, e2.y, e2.z,
+        r2.x, r2.y, r2.z
+      ]);
+      geom.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      geom.computeVertexNormals();
+      const mesh = new THREE.Mesh(geom, tarpMat);
+      tarpGroup.add(mesh);
+    }
+
+    // قبة فنتوري العلوية (+3.60m إلى +3.88m)
+    const cupolaGeo = new THREE.ConeGeometry(0.95, 0.32, 8, 1, true);
+    const cupolaMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      transparent: true,
+      opacity: 0.48,
+      side: THREE.DoubleSide
+    });
+    const cupolaMesh = new THREE.Mesh(cupolaGeo, cupolaMat);
+    cupolaMesh.position.set(0, 3.82, 0);
+    tarpGroup.add(cupolaMesh);
+
+    // شادر السور المصمت حتى منسوب +2.20m (مع ترك فجوة الخياشيم من +2.20m إلى +2.40m)
+    const wallTarpMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0,
+      transparent: true,
+      opacity: 0.16,
+      side: THREE.DoubleSide
+    });
+    for (let i = 0; i < 4; i++) {
+      const c1 = corners[i];
+      const c2 = corners[(i + 1) % 4];
+      const wGeo = new THREE.BufferGeometry();
+      const wVerts = new Float32Array([
+        c1.x, 0, c1.z,
+        c2.x, 0, c2.z,
+        c2.x, 2.20, c2.z,
+        c1.x, 0, c1.z,
+        c2.x, 2.20, c2.z,
+        c1.x, 2.20, c1.z
+      ]);
+      wGeo.setAttribute('position', new THREE.BufferAttribute(wVerts, 3));
+      wGeo.computeVertexNormals();
+      tarpGroup.add(new THREE.Mesh(wGeo, wallTarpMat));
+    }
+
+    // -------------------------------------------------------------------------
+    // ز. تيارات الرياح المتحركة وتفريغ فنتوري (Animated Wind Streamlines)
+    // -------------------------------------------------------------------------
+    const windGroup = new THREE.Group();
+    scene.add(windGroup);
+    const windArrows = [];
+
+    const arrowMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+    for (let i = 0; i < 26; i++) {
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.28, 6), arrowMat);
+      cone.rotation.z = -Math.PI / 2;
+      const zOffset = (Math.random() - 0.5) * 8.0;
+      const mode = i < 8 ? 'venturi' : 'stream';
+      windArrows.push({
+        mesh: cone,
+        progress: Math.random(),
+        zOffset,
+        mode
+      });
+      windGroup.add(cone);
+    }
+
+    function updateWindAnimation(dt) {
+      if (!state.showWind) return;
+      const speedFactor = (state.windSpeed / 25.0) * 0.45;
+      windArrows.forEach(item => {
+        item.progress += dt * speedFactor;
+        if (item.progress > 1) item.progress -= 1;
+        const p = item.progress;
+
+        if (item.mode === 'stream') {
+          // مسار الرياح فوق القبة المخروطية (شفط للأعلى)
+          const x = -6.5 + p * 13.0;
+          let y = 1.6;
+          if (Math.abs(x) < 4.8) {
+            y = 2.65 + (1 - Math.abs(x) / 4.8) * 1.35;
+          }
+          item.mesh.position.set(x, y, item.zOffset);
+          item.mesh.rotation.set(0, 0, -Math.PI / 2);
+        } else {
+          // تفريغ الهواء الداخلي عبر قبة فنتوري العلوية
+          const angle = item.zOffset * 2.0;
+          const r = (1 - p) * 1.8;
+          const x = Math.cos(angle) * r;
+          const z = Math.sin(angle) * r;
+          const y = 1.2 + p * 2.85;
+          item.mesh.position.set(x, y, z);
+          item.mesh.rotation.set(0, 0, 0);
+        }
+      });
+    }
+
+    // =========================================================================
+    // 4. تحديث الألوان والواجهة التفاعلية (UI & Color Synchronization)
+    // =========================================================================
+    function getColorForSF(sf) {
+      if (sf < 1.25) return new THREE.Color(0xef4444); // أحمر: خطر انبعاج أو خضوع
+      if (sf > 1.75) return new THREE.Color(0xf59e0b); // برتقالي: وزن زائد
+      return new THREE.Color(0x10b981);                // أخضر زمردي: ضمن النطاق المثالي
+    }
+
+    function getColorForDiameter(diaGroup) {
+      if (diaGroup === 10) return new THREE.Color(0xf43f5e); // Phi 10mm
+      if (diaGroup === 8) return new THREE.Color(0x38bdf8);  // Phi 8mm
+      return new THREE.Color(0xa855f7);                      // Phi 6mm
+    }
+
+    function update3DColors() {
+      Object.keys(STRUCTURAL_ELEMENTS).forEach(key => {
+        const el = STRUCTURAL_ELEMENTS[key];
+        const res = state.results[key];
+        const mat = groupMaterials[key];
+
+        if (state.colorMode === 'sf') {
+          mat.color.copy(getColorForSF(res.sf));
+        } else {
+          mat.color.copy(getColorForDiameter(el.diaGroup));
+        }
+
+        // إبراز العنصر المحدد حالياً
+        if (state.selectedKey === key) {
+          mat.emissive.setHex(0x1e3a8a);
+        } else {
+          mat.emissive.setHex(0x000000);
+        }
+      });
+    }
+
+    function updateUI() {
+      // تحديث بطاقة الفحص للعنصر المختار
+      const selEl = STRUCTURAL_ELEMENTS[state.selectedKey];
+      const selRes = state.results[state.selectedKey];
+
+      document.getElementById('ins-name').textContent = selEl.name;
+      document.getElementById('ins-dia').textContent = selEl.diaText;
+      document.getElementById('ins-lcr').textContent = selEl.baseLcr > 0 ? selRes.lcr.toFixed(2) + ' m' : 'N/A';
+      document.getElementById('ins-load').textContent = selRes.load.toFixed(2) + ' kN';
+      document.getElementById('ins-cap').textContent = selRes.cap.toFixed(2) + ' kN';
+      document.getElementById('ins-weight').textContent =
+        state.selectedKey === 'ballastUplift' ? state.ballastMass + ' kg (ركام)' : selEl.weight.toFixed(2) + ' kg';
+
+      const insSf = document.getElementById('ins-sf');
+      let statusLabel = 'مطابق ✓';
+      let colorVar = 'var(--sf-ok)';
+      if (selRes.sf < 1.25) {
+        statusLabel = 'خطر انهيار !';
+        colorVar = 'var(--sf-danger)';
+      } else if (selRes.sf > 1.75) {
+        statusLabel = 'تجاوز 1.75 !';
+        colorVar = 'var(--sf-warn)';
+      }
+      insSf.textContent = `${selRes.sf.toFixed(2)} (${statusLabel})`;
+      insSf.style.color = colorVar;
+
+      // تحديث مصفوفة معاملات الأمان
+      const matrixContainer = document.getElementById('sf-matrix');
+      matrixContainer.innerHTML = '';
+
+      Object.keys(STRUCTURAL_ELEMENTS).forEach(key => {
+        const el = STRUCTURAL_ELEMENTS[key];
+        const res = state.results[key];
+
+        let badgeColor = 'var(--sf-ok)';
+        if (res.sf < 1.25) badgeColor = 'var(--sf-danger)';
+        else if (res.sf > 1.75) badgeColor = 'var(--sf-warn)';
+
+        const pct = Math.min(100, Math.max(10, ((res.sf - 0.8) / 1.4) * 100));
+
+        const row = document.createElement('div');
+        row.className = 'sf-row';
+        if (state.selectedKey === key) {
+          row.style.borderColor = 'var(--accent-light)';
+          row.style.background = 'rgba(2, 132, 199, 0.2)';
+        }
+        row.innerHTML = `
+          <div class="sf-row-top">
+            <span>${el.name.split('(')[0]}</span>
+            <span class="sf-badge" style="color:${badgeColor}; border:1px solid ${badgeColor};">SF = ${res.sf.toFixed(2)}</span>
+          </div>
+          <div class="sf-bar-track">
+            <div class="sf-bar-fill" style="width:${pct}%; background:${badgeColor};"></div>
+          </div>
+        `;
+        row.addEventListener('click', () => {
+          state.selectedKey = key;
+          updateUI();
+          update3DColors();
+        });
+        matrixContainer.appendChild(row);
+      });
+    }
+
+    // =========================================================================
+    // 5. التفاعل بالنقر على المجسم (Raycasting) وربط الأزرار والمنزلقات
+    // =========================================================================
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    let pointerDownPos = { x: 0, y: 0 };
+
+    renderer.domElement.addEventListener('pointerdown', (e) => {
+      pointerDownPos = { x: e.clientX, y: e.clientY };
+    });
+
+    renderer.domElement.addEventListener('pointerup', (e) => {
+      const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+      if (dist > 6) return; // تجاهل السحب للدوران
+
+      pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+      pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+
+      const intersects = raycaster.intersectObjects(pickableMeshes);
+      if (intersects.length > 0) {
+        const hitKey = intersects[0].object.userData.elementKey;
+        if (hitKey) {
+          state.selectedKey = hitKey;
+          updateUI();
+          update3DColors();
+        }
+      }
+    });
+
+    // المنزلقات
+    document.getElementById('slider-wind').addEventListener('input', (e) => {
+      state.windSpeed = parseFloat(e.target.value);
+      const kmh = Math.round(state.windSpeed * 3.6);
+      document.getElementById('val-wind').textContent = `${state.windSpeed.toFixed(1)} m/s (${kmh} km/h)`;
+      computeStructuralState();
+    });
+
+    document.getElementById('slider-lcr').addEventListener('input', (e) => {
+      state.lcrScale = parseFloat(e.target.value);
+      document.getElementById('val-lcr').textContent = `${state.lcrScale.toFixed(2)}×`;
+      computeStructuralState();
+    });
+
+    document.getElementById('slider-ballast').addEventListener('input', (e) => {
+      state.ballastMass = parseInt(e.target.value, 10);
+      document.getElementById('val-ballast').textContent = `${state.ballastMass} kg`;
+      computeStructuralState();
+    });
+
+    // زر إعادة الضبط للقيم التصميمية المثلى
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      state.windSpeed = 25.0;
+      state.lcrScale = 1.00;
+      state.ballastMass = 2670;
+      document.getElementById('slider-wind').value = 25.0;
+      document.getElementById('slider-lcr').value = 1.00;
+      document.getElementById('slider-ballast').value = 2670;
+      document.getElementById('val-wind').textContent = '25.0 m/s (90 km/h)';
+      document.getElementById('val-lcr').textContent = '1.00× (قياسي)';
+      document.getElementById('val-ballast').textContent = '2670 kg';
+      computeStructuralState();
+    });
+
+    // أزرار أنماط التلوين والإظهار
+    document.getElementById('mode-sf').addEventListener('click', (e) => {
+      state.colorMode = 'sf';
+      e.target.classList.add('active');
+      document.getElementById('mode-dia').classList.remove('active');
+      document.getElementById('legend-bar').innerHTML = `
+        <div class="legend-item"><span class="dot" style="background: var(--sf-ok);"></span> آمن ومثالي (1.25 ≤ SF ≤ 1.75)</div>
+        <div class="legend-item"><span class="dot" style="background: var(--sf-warn);"></span> فائض أمان / وزن زائد (SF &gt; 1.75)</div>
+        <div class="legend-item"><span class="dot" style="background: var(--sf-danger);"></span> خطر انبعاج أو خضوع (SF &lt; 1.25)</div>
+      `;
+      update3DColors();
+    });
+
+    document.getElementById('mode-dia').addEventListener('click', (e) => {
+      state.colorMode = 'dia';
+      e.target.classList.add('active');
+      document.getElementById('mode-sf').classList.remove('active');
+      document.getElementById('legend-bar').innerHTML = `
+        <div class="legend-item"><span class="dot" style="background: #f43f5e;"></span> قطر Φ10 mm (الساري والأعمدة)</div>
+        <div class="legend-item"><span class="dot" style="background: #38bdf8;"></span> قطر Φ8 mm (الأوتار والشكالات)</div>
+        <div class="legend-item"><span class="dot" style="background: #a855f7;"></span> قطر Φ6 mm (الحلقات والشبكة)</div>
+      `;
+      update3DColors();
+    });
+
+    document.getElementById('toggle-tarp').addEventListener('click', (e) => {
+      state.showTarp = !state.showTarp;
+      tarpGroup.visible = state.showTarp;
+      e.target.classList.toggle('active', state.showTarp);
+    });
+
+    document.getElementById('toggle-wind').addEventListener('click', (e) => {
+      state.showWind = !state.showWind;
+      windGroup.visible = state.showWind;
+      e.target.classList.toggle('active', state.showWind);
+    });
+
+    document.getElementById('toggle-ballast').addEventListener('click', (e) => {
+      state.showBallast = !state.showBallast;
+      ballastGroup.visible = state.showBallast;
+      e.target.classList.toggle('active', state.showBallast);
+    });
+
+    document.getElementById('toggle-autorotate').addEventListener('click', (e) => {
+      state.autoRotate = !state.autoRotate;
+      controls.autoRotate = state.autoRotate;
+      controls.autoRotateSpeed = 1.6;
+      e.target.classList.toggle('active', state.autoRotate);
+    });
+
+    // أزرار الكاميرا الهندسية
+    document.querySelectorAll('[data-cam]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-cam');
+        if (mode === 'iso') {
+          camera.position.set(11.5, 7.8, 11.5);
+          controls.target.set(0, 1.8, 0);
+        } else if (mode === 'top') {
+          camera.position.set(0, 16.5, 0.01);
+          controls.target.set(0, 0, 0);
+        } else if (mode === 'side') {
+          camera.position.set(0, 2.2, 13.5);
+          controls.target.set(0, 1.9, 0);
+        } else if (mode === 'hub') {
+          camera.position.set(2.4, 4.3, 2.4);
+          controls.target.set(0, 3.1, 0);
+        }
+        controls.update();
+      });
+    });
+
+    // أزرار الموبايل
+    const rightPanel = document.getElementById('right-panel');
+    const leftPanel = document.getElementById('left-panel');
+    document.getElementById('btn-mob-right').addEventListener('click', () => {
+      rightPanel.classList.toggle('hidden-mobile');
+      leftPanel.classList.add('hidden-mobile');
+    });
+    document.getElementById('btn-mob-left').addEventListener('click', () => {
+      leftPanel.classList.toggle('hidden-mobile');
+      rightPanel.classList.add('hidden-mobile');
+    });
+
+    // استجابة تغيير حجم الشاشة
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // تشغيل الحساب الابتدائي وحلقة الرسم
+    computeStructuralState();
+    let lastTime = performance.now();
+
+    function animate(now) {
+      requestAnimationFrame(animate);
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+
+      updateWindAnimation(dt);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
